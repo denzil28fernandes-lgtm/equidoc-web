@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Comprehension Confirmation - EquiDoc</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#d5e3fc",
+                    "secondary": "#006a61",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#7c839b",
+                    "surface-container": "#e6eeff",
+                    "surface-container-high": "#dce9ff",
+                    "secondary-fixed-dim": "#6bd8cb",
+                    "inverse-surface": "#233144",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "background": "#f8f9ff",
+                    "surface-dim": "#ccdbf3",
+                    "secondary-fixed": "#89f5e7",
+                    "primary-container": "#131b2e",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#d5e3fc",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#86f2e4",
+                    "primary-fixed-dim": "#bec6e0",
+                    "surface-container-low": "#eff4ff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-secondary-fixed": "#00201d",
+                    "on-surface-variant": "#45464d",
+                    "outline": "#76777d",
+                    "tertiary-fixed": "#e0e3e5",
+                    "on-background": "#0d1c2e",
+                    "tertiary-container": "#191c1e",
+                    "primary": "#000000",
+                    "outline-variant": "#c6c6cd",
+                    "tertiary": "#000000",
+                    "surface-bright": "#f8f9ff",
+                    "on-surface": "#0d1c2e",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#818486",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-tint": "#565e74",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "primary-fixed": "#dae2fd",
+                    "surface": "#f8f9ff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-secondary-fixed-variant": "#005049",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#006f66",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "stack-lg": "24px",
+                    "stack-md": "16px",
+                    "touch-target-min": "48px",
+                    "stack-sm": "8px",
+                    "margin-mobile": "16px",
+                    "gutter-mobile": "12px"
+            },
+            "fontFamily": {
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "headline-lg": ["Atkinson Hyperlegible Next"],
+                    "label-lg": ["Atkinson Hyperlegible Next"],
+                    "interactive-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg-mobile": ["Atkinson Hyperlegible Next"],
+                    "headline-md": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "interactive-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .processing-pulse {
+            animation: pulse-opacity 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .active-scale:active {
+            transform: scale(0.95);
+            transition: transform 0.1s;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-secondary-container">
+<!-- Top Navigation Anchor -->
+<header class="bg-surface-container-lowest text-primary flex justify-between items-center w-full px-margin-mobile h-touch-target-min fixed top-0 z-50 border-b-2 border-outline-variant">
+<div class="flex items-center gap-stack-sm active-scale">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</div>
+<h1 class="text-headline-md font-headline-md font-black text-primary">EquiDoc</h1>
+<div class="text-label-lg font-label-lg text-primary active-scale">English</div>
+</header>
+<main class="min-h-screen pt-20 pb-32 px-margin-mobile flex flex-col justify-center max-w-[600px] mx-auto">
+<!-- Status Indicator: Subtle Teal Processing Bar (Simulated Completion) -->
+<div class="w-full bg-surface-container-low h-1 rounded-full mb-stack-lg overflow-hidden">
+<div class="bg-secondary h-full w-full opacity-30"></div>
+</div>
+<!-- Hero Section -->
+<div class="text-center mb-stack-lg">
+<div class="w-20 h-20 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center mx-auto mb-stack-md">
+<span class="material-symbols-outlined text-[40px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile mb-stack-sm">Do you understand this document now?</h2>
+<p class="text-body-md text-on-surface-variant px-stack-md">
+                Your confirmation helps us know if EquiDoc is helpful. No data is saved.
+            </p>
+</div>
+<!-- Confirmation Card / AI Anchor -->
+<div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-stack-md mb-stack-lg border-l-[8px] border-l-secondary">
+<div class="flex items-start gap-stack-md">
+<span class="material-symbols-outlined text-secondary" data-icon="verified_user">verified_user</span>
+<div class="text-body-md italic text-on-surface-variant">
+                    "EquiDoc has translated the legal jargon into simple language. Confirming this ensures we continue improving our 'Trusted Advocate' model."
+                </div>
+</div>
+</div>
+<!-- Action Buttons (Thumb-Driven Design) -->
+<div class="flex flex-col gap-stack-md">
+<button class="bg-primary text-on-primary h-[64px] rounded-lg flex items-center justify-center gap-stack-sm active-scale shadow-sm">
+<span class="material-symbols-outlined" data-icon="thumb_up">thumb_up</span>
+<span class="text-interactive-lg font-interactive-lg">Yes, I understand</span>
+</button>
+<button class="bg-secondary text-on-secondary h-[64px] rounded-lg flex items-center justify-center gap-stack-sm active-scale shadow-sm">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-interactive-lg font-interactive-lg">I still have questions</span>
+</button>
+<button class="bg-surface-container text-on-surface-variant h-[56px] border-2 border-outline-variant rounded-lg flex items-center justify-center gap-stack-sm active-scale">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-label-lg font-label-lg">Go back to summary</span>
+</button>
+</div>
+<!-- Illustration / Mood Image -->
+<div class="mt-stack-lg rounded-xl overflow-hidden border border-outline-variant aspect-video">
+<img class="w-full h-full object-cover" data-alt="A professional, high-utility minimalist digital illustration of a diverse group of construction workers and office professionals shaking hands. The scene is bright and airy with high-key lighting, emphasizing clarity and mutual understanding. The color palette is strictly limited to deep blues, whites, and soft grays with vibrant teal accents. The style is clean, modern, and trustworthy, conveying instant relief and legal clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtfFdN9xFFfmluwcUSPa-XTMLC7_0MSrw7AMOYS6uPbD7c_OdiXVDduyIg8Jwm4eLDIPVHhz7ENwXO1JwMwjFxFnhQSr5IUz-gq2CY2LJSxuKOGe2D9TAjkoIPDked4CBlHG2f9bfkwFIR82JDBq2D2ieU6L5k8_TZUfkQ2zZjbtD8SCfPfi7RDePVXy4K6E09scn8gwwfY6PqBkmbKmnlmTx8fusCi-j52RZxGUzkwQxCboJMZjWmKFI2ZkUWYz679HZoCgTei7s"/>
+</div>
+</main>
+<!-- Privacy-First Footer -->
+<footer class="w-full px-margin-mobile py-stack-lg mb-20 text-center bg-surface-container-low border-t border-outline-variant">
+<p class="text-body-md font-body-md text-on-surface-variant mb-stack-sm">
+            Not a lawyer warning: This is an AI summary, not legal advice. Data deleted instantly.
+        </p>
+<div class="flex justify-center gap-stack-md">
+<a class="text-on-surface-variant font-body-md underline hover:text-primary active-scale" href="#">Privacy</a>
+<a class="text-on-surface-variant font-body-md underline hover:text-primary active-scale" href="#">Terms</a>
+</div>
+<div class="mt-stack-sm text-label-lg font-label-lg text-on-surface-variant opacity-60">
+            © 2024 EquiDoc
+        </div>
+</footer>
+<!-- BottomNavBar (History Suppressed as requested) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter-mobile pb-safe bg-surface-container-lowest border-t-2 border-outline-variant h-20">
+<!-- Scan Tab -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant active-scale hover:bg-surface-container-low px-stack-md py-unit rounded-full">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+<span class="text-label-lg font-label-lg">Scan</span>
+</div>
+<!-- Center Primary Action (Contextual) -->
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-stack-md py-unit active-scale transition-all">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+<span class="text-label-lg font-label-lg">Confirm</span>
+</div>
+<!-- Settings Tab -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant active-scale hover:bg-surface-container-low px-stack-md py-unit rounded-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-lg font-label-lg">Settings</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction for feedback
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Haptic feedback logic could go here
+                console.log('Action selected: ' + btn.innerText);
+            });
+        });
+    </script>
+</body></html>

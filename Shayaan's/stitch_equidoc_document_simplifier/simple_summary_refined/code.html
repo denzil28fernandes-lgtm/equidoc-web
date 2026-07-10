@@ -1,0 +1,226 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#89f5e7",
+                    "surface-container": "#e6eeff",
+                    "surface-container-highest": "#d5e3fc",
+                    "surface-container-high": "#dce9ff",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#bec6e0",
+                    "inverse-surface": "#233144",
+                    "on-primary-fixed": "#131b2e",
+                    "on-surface": "#0d1c2e",
+                    "on-secondary-fixed": "#00201d",
+                    "surface-container-low": "#eff4ff",
+                    "primary-container": "#131b2e",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-tertiary-container": "#818486",
+                    "primary": "#000000",
+                    "outline": "#76777d",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "surface-tint": "#565e74",
+                    "surface-dim": "#ccdbf3",
+                    "surface-bright": "#f8f9ff",
+                    "surface-variant": "#d5e3fc",
+                    "tertiary": "#000000",
+                    "secondary": "#006a61",
+                    "outline-variant": "#c6c6cd",
+                    "on-surface-variant": "#45464d",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "on-primary-container": "#7c839b",
+                    "tertiary-container": "#191c1e",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#006f66",
+                    "on-error": "#ffffff",
+                    "background": "#f8f9ff",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface": "#f8f9ff",
+                    "tertiary-fixed": "#e0e3e5",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#6bd8cb",
+                    "secondary-container": "#86f2e4",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#005049",
+                    "on-background": "#0d1c2e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter-mobile": "12px",
+                    "stack-lg": "24px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "touch-target-min": "48px",
+                    "unit": "4px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Atkinson Hyperlegible Next"],
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "headline-md": ["Atkinson Hyperlegible Next"],
+                    "interactive-lg": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg-mobile": ["Atkinson Hyperlegible Next"],
+                    "headline-lg": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "interactive-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    }catch(_e){}</script></head><body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- Top AppBar -->
+<header class="bg-surface-container-lowest border-b-2 border-outline-variant fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-touch-target-min">
+<div class="flex items-center gap-stack-sm">
+<button class="active-scale h-touch-target-min w-touch-target-min flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-original-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-headline-md font-headline-md font-black text-primary">EquiDoc</h1>
+</div>
+<button class="active-scale flex items-center gap-unit px-stack-sm h-touch-target-min hover:bg-surface-container rounded-lg transition-all"><span class="material-symbols-outlined text-[20px]">language</span><span class="text-label-lg font-label-lg text-primary">English</span></button>
+</header>
+
+<main class="flex-grow pt-16 pb-24 px-margin-mobile max-w-[600px] mx-auto w-full">
+<!-- 1. Audio Player (Primary Consumption Mode) -->
+<section class="mt-stack-lg mb-stack-lg">
+<div class="bg-secondary-container rounded-xl p-stack-lg border-2 border-secondary shadow-sm">
+<div class="flex flex-col items-center gap-stack-md text-center">
+<div class="flex gap-stack-lg items-center">
+<button class="bg-secondary/10 text-secondary h-touch-target-min w-touch-target-min rounded-full flex items-center justify-center active-scale transition-transform">
+<span class="material-symbols-outlined text-[32px]">replay_10</span>
+</button>
+<button class="bg-secondary text-on-secondary h-16 w-16 rounded-full flex items-center justify-center active-scale transition-transform shadow-lg" id="playAudio">
+<span class="material-symbols-outlined text-[40px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="bg-secondary/10 text-secondary h-touch-target-min w-touch-target-min rounded-full flex items-center justify-center active-scale transition-transform">
+<span class="material-symbols-outlined text-[32px]">forward_10</span>
+</button>
+</div>
+<div>
+<p class="text-interactive-lg font-interactive-lg text-on-secondary-container">Listen to Document Summary</p>
+<p class="text-body-md text-on-secondary-container opacity-80">2:14 minutes • AI voice generated</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 2. Simple Readable Summary (Large text) -->
+<section class="mb-stack-lg">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-on-surface mb-stack-sm">The Big Picture</h2>
+<div class="bg-surface-container-lowest border-2 border-outline-variant p-stack-lg rounded-xl">
+<p class="text-body-lg font-body-lg text-on-surface leading-relaxed">
+            This document is a standard safety agreement for the warehouse. It basically says you agree to wear your gear and follow the team leader's instructions during your shift.
+        </p>
+</div>
+</section>
+
+<!-- 3. Important Things to Know list (Visually distinct, not alarming red) -->
+<section class="mb-stack-lg">
+<div class="flex items-center gap-stack-sm mb-stack-sm">
+<span class="material-symbols-outlined text-secondary">priority_high</span>
+<h3 class="text-headline-md font-headline-md text-on-surface">Important Things to Know</h3>
+</div>
+<div class="space-y-stack-md">
+<div class="bg-error-container p-stack-md rounded-xl border-l-8 border-error">
+<div class="flex gap-stack-sm items-start">
+<span class="material-symbols-outlined text-error mt-1">info</span>
+<p class="text-body-md font-body-md text-on-error-container">
+<strong>Injury Compensation:</strong> If you get hurt while not wearing the required safety vest, the company may not pay for your time off work.
+                </p>
+</div>
+</div>
+<div class="bg-surface-container-low p-stack-md rounded-xl border border-outline-variant">
+<div class="flex gap-stack-sm items-start">
+<span class="material-symbols-outlined text-on-surface-variant mt-1">check_circle</span>
+<p class="text-body-md font-body-md text-on-surface">
+                    You must report any broken tools to your supervisor before you start working.
+                </p>
+</div>
+</div>
+<div class="bg-error-container p-stack-md rounded-xl border-l-8 border-error">
+<div class="flex gap-stack-sm items-start">
+<span class="material-symbols-outlined text-error mt-1">gavel</span>
+<p class="text-body-md font-body-md text-on-error-container">
+<strong>Legal Meetings (Clause 4.2):</strong> You agree to attend a private meeting (arbitration) to resolve issues instead of suing the company directly.
+                </p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 4. Disclaimer -->
+<section class="mb-stack-lg px-unit text-center">
+<p class="text-body-md font-body-md text-on-surface-variant">
+        This helps you understand your document. It is not legal advice.
+    </p>
+</section>
+
+<!-- 5. Actions row -->
+<div class="grid grid-cols-1 gap-stack-md mb-8">
+<button class="w-full bg-primary text-on-primary h-touch-target-min rounded-lg font-interactive-lg text-interactive-lg active-scale transition-all flex items-center justify-center gap-stack-sm">
+<span class="material-symbols-outlined">done_all</span>
+        I understand this now
+    </button>
+<button class="w-full border-2 border-primary text-primary h-touch-target-min rounded-lg font-interactive-lg text-interactive-lg active-scale transition-all flex items-center justify-center gap-stack-sm">
+<span class="material-symbols-outlined">add_a_photo</span>
+        Retake photo
+    </button>
+</div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full px-margin-mobile py-stack-lg mb-20 text-center bg-surface-container-low border-t border-outline-variant">
+<div class="text-label-lg font-label-lg text-on-surface-variant mb-unit">EquiDoc Legal Notice</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-stack-md">
+            AI-generated summary. Data deleted instantly.
+        </p>
+<div class="flex justify-center gap-stack-md">
+<a class="text-on-surface-variant hover:text-primary underline" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary underline" href="#">Terms</a>
+</div>
+</footer>
+
+<!-- Bottom NavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter-mobile pb-safe bg-surface-container-lowest border-t-2 border-outline-variant h-16">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active-scale transition-all" href="#">
+<span class="material-symbols-outlined">photo_camera</span>
+<span class="text-label-lg font-label-lg">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active-scale transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-lg font-label-lg">Settings</span>
+</a>
+</nav>
+
+<script class="">
+        // Simple Audio Toggle Micro-interaction
+        const playBtn = document.getElementById('playAudio');
+        let isPlaying = false;
+
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            const icon = playBtn.querySelector('.material-symbols-outlined');
+            if (isPlaying) {
+                icon.innerText = 'pause';
+                playBtn.classList.add('processing-pulse');
+            } else {</script></body></html>

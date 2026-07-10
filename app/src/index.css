@@ -1,0 +1,43 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: #D7D2CB;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #16211F;
+}
+
+/* Prototype animations */
+@keyframes eq-pulse   { 0% { transform: scale(0.9); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes eq-cam     { 0%,100% { box-shadow: 0 10px 34px rgba(15,124,107,0.42); } 50% { box-shadow: 0 14px 48px rgba(15,124,107,0.66); } }
+@keyframes eq-shimmer { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes eq-ring    { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes eq-up      { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes eq-scan    { 0% { top: 8%; } 50% { top: 88%; } 100% { top: 8%; } }
+
+/* Hide scrollbars inside the phone screens for a cleaner demo look */
+.eq-scroll::-webkit-scrollbar { width: 0; height: 0; }
+.eq-scroll { scrollbar-width: none; }
+
+/* Base styles (Desktop/Tablet "Fake Phone" Preview) */
+.eq-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; }
+.eq-phone-bezel { width: 384px; flex-shrink: 0; background: #111312; border-radius: 40px; padding: 9px; position: relative; box-shadow: 0 50px 110px rgba(0,0,0,0.5), 0 16px 34px rgba(0,0,0,0.26), inset 0 0 0 1px rgba(255,255,255,0.1); }
+.eq-punch-hole { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: #000; border-radius: 50%; z-index: 60; box-shadow: inset 0 0 0 1.5px #26302d; }
+.eq-screen { border-radius: 32px; overflow: hidden; position: relative; height: 812px; background: #FFFFFF; font-family: 'Outfit', sans-serif; }
+.eq-status-bar { position: absolute; top: 0; left: 0; right: 0; height: 40px; z-index: 50; pointer-events: none; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.eq-gesture-pill { position: absolute; bottom: 0; left: 0; right: 0; height: 26px; z-index: 50; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+
+/* Mobile styles (True Full Screen on Real Devices) */
+@media (max-width: 600px) {
+  body { background: #FFFFFF; }
+  .eq-container { padding: 0; align-items: stretch; min-height: 100dvh; }
+  .eq-phone-bezel { width: 100vw; border-radius: 0; padding: 0; box-shadow: none; background: transparent; }
+  .eq-punch-hole, .eq-status-bar, .eq-gesture-pill { display: none; }
+  .eq-screen { height: 100dvh; border-radius: 0; }
+}

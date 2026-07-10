@@ -1,0 +1,23 @@
+# ── Secrets — NEVER commit these ──
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+
+# ── Dependencies & caches ──
+node_modules/
+**/node_modules/
+.npm-cache/
+**/.npm-cache/
+
+# ── Build output ──
+dist/
+**/dist/
+
+# ── Local tooling / editor / OS ──
+.claude/
+.DS_Store
+**/.DS_Store
+*.log

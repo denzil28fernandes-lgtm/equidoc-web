@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EquiDoc | Processing Document</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#89f5e7",
+                    "surface-container": "#e6eeff",
+                    "surface-container-highest": "#d5e3fc",
+                    "surface-container-high": "#dce9ff",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#bec6e0",
+                    "inverse-surface": "#233144",
+                    "on-primary-fixed": "#131b2e",
+                    "on-surface": "#0d1c2e",
+                    "on-secondary-fixed": "#00201d",
+                    "surface-container-low": "#eff4ff",
+                    "primary-container": "#131b2e",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-tertiary-container": "#818486",
+                    "primary": "#000000",
+                    "outline": "#76777d",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "surface-tint": "#565e74",
+                    "surface-dim": "#ccdbf3",
+                    "surface-bright": "#f8f9ff",
+                    "surface-variant": "#d5e3fc",
+                    "tertiary": "#000000",
+                    "secondary": "#006a61",
+                    "outline-variant": "#c6c6cd",
+                    "on-surface-variant": "#45464d",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "on-primary-container": "#7c839b",
+                    "tertiary-container": "#191c1e",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#006f66",
+                    "on-error": "#ffffff",
+                    "background": "#f8f9ff",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface": "#f8f9ff",
+                    "tertiary-fixed": "#e0e3e5",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#6bd8cb",
+                    "secondary-container": "#86f2e4",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#005049",
+                    "on-background": "#0d1c2e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter-mobile": "12px",
+                    "stack-lg": "24px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "touch-target-min": "48px",
+                    "unit": "4px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Atkinson Hyperlegible Next"],
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "headline-md": ["Atkinson Hyperlegible Next"],
+                    "interactive-lg": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg-mobile": ["Atkinson Hyperlegible Next"],
+                    "headline-lg": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "interactive-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes pulse-teal {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+        }
+        .animate-pulse-teal {
+            animation: pulse-teal 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes progress-loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 95%; }
+        }
+        .animate-progress {
+            animation: progress-loading 8s ease-in-out infinite alternate;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-hidden">
+<!-- TopAppBar (Suppressed per "Task-Focused" rule, but generating a minimal version to maintain brand identity if needed, here we prioritize content canvas as it's a focus state) -->
+<header class="bg-surface-container-lowest text-primary flex justify-between items-center w-full px-margin-mobile h-touch-target-min border-b-2 border-outline-variant">
+<div class="flex items-center gap-stack-sm">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+<span class="text-headline-md font-headline-md font-black text-primary">EquiDoc</span>
+</div>
+<span class="text-label-lg font-label-lg">English</span>
+</header>
+<!-- Main Content: Processing State -->
+<main class="flex-grow flex flex-col items-center justify-center px-margin-mobile text-center relative max-w-[600px] mx-auto w-full">
+<!-- Document Preview Container (Tonal Layer) -->
+<div class="w-full aspect-[3/4] max-h-[400px] bg-surface-container-low border-2 border-outline-variant rounded-xl mb-stack-lg flex items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-cover bg-center opacity-40" data-alt="A macro photograph of a complex legal employment contract document, slightly blurred to emphasize focus on the center. The paper texture is visible under soft, professional indoor lighting. The composition is clean and minimalist, using a cool blue and white palette consistent with a trusted legal tech application aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDhY52YzfgSeTQuMYoUd5PDTVuU-o7_7nKhVdSB9cD_sCN3RaQTvjAWenBRDsVRRUjJX05ZJLvJkz0_EOEnWkaew-u-Le3suyknN5b3dbA3xtTV0nwxsCypa0Rtml6W-PqdEbyjhxx83FbOTBH5TGKsAi6PTdjAXEXVhDulEh-mV9utw0VTSG_2DAfy12HlRrZC19xkNPAoncOywaRE82SNaIXX62r5PQ_Oyzf9i-1bWP-c6t7dO_TM0CmgfCIl2e7zhAAHqP-8q5M')"></div>
+<!-- Scanning Line Overlay -->
+<div class="absolute inset-0 flex flex-col justify-start">
+<div class="w-full h-1 bg-secondary shadow-[0_0_15px_rgba(0,106,97,0.5)] animate-[bounce_3s_infinite] opacity-80"></div>
+</div>
+<!-- Focus Corners -->
+<div class="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-secondary"></div>
+<div class="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-secondary"></div>
+<div class="absolute bottom-4 left-4 w-8 h-8 border-b-4 border-l-4 border-secondary"></div>
+<div class="absolute bottom-4 right-4 w-8 h-8 border-b-4 border-r-4 border-secondary"></div>
+<!-- Central Icon -->
+<div class="z-10 bg-surface-container-lowest/90 p-stack-md rounded-full border-2 border-secondary animate-pulse-teal">
+<span class="material-symbols-outlined text-secondary text-[48px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+</div>
+<!-- Status & Messaging -->
+<div class="space-y-stack-sm w-full">
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">AI is reading your document...</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-[80%] mx-auto">
+                Extracting text and simplifying. This usually takes 5-10 seconds.
+            </p>
+</div>
+<!-- Progress Bar (The Processing Bar) -->
+<div class="w-full h-2 bg-surface-container-high rounded-full mt-stack-lg overflow-hidden border border-outline-variant">
+<div class="h-full bg-secondary animate-progress w-0"></div>
+</div>
+<!-- Safety Reassurance Card -->
+<div class="mt-stack-lg bg-surface-container-lowest border-l-4 border-secondary p-stack-md rounded-lg flex items-center gap-stack-md w-full">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<p class="text-label-lg font-label-lg text-on-secondary-container">
+                Your document is private and safe.
+            </p>
+</div>
+</main>
+<!-- Footer: Task Focused Variant (Simplified) -->
+<footer class="w-full px-margin-mobile py-stack-lg mb-4 text-center">
+<p class="text-body-md font-body-md text-on-surface-variant opacity-70">
+            Not a lawyer warning: This is an AI summary, not legal advice. Data deleted instantly.
+        </p>
+<div class="flex justify-center gap-stack-md mt-unit">
+<a class="text-on-surface-variant underline hover:text-primary transition-colors text-label-lg font-label-lg" href="#">Privacy</a>
+<a class="text-on-surface-variant underline hover:text-primary transition-colors text-label-lg font-label-lg" href="#">Terms</a>
+</div>
+</footer>
+<!-- No BottomNavBar on Processing Screen per "Task-Focused" Suppression Rule -->
+<script>
+        // Micro-interaction: Update text based on "time"
+        const loadingTexts = [
+            "Extracting text and simplifying. This usually takes 5-10 seconds.",
+            "Analyzing legal terminology...",
+            "Identifying key clauses and risks...",
+            "Formatting your simple summary..."
+        ];
+        let textIndex = 0;
+        const textElement = document.querySelector('p.text-body-lg');
+
+        setInterval(() => {
+            textIndex = (textIndex + 1) % loadingTexts.length;
+            textElement.style.opacity = 0;
+            setTimeout(() => {
+                textElement.textContent = loadingTexts[textIndex];
+                textElement.style.opacity = 1;
+                textElement.classList.add('transition-opacity', 'duration-500');
+            }, 500);
+        }, 3000);
+    </script>
+</body></html>

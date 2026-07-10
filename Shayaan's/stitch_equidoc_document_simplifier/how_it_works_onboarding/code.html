@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EquiDoc | Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        .snap-x {
+            scroll-snap-type: x mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .snap-x::-webkit-scrollbar {
+            display: none;
+        }
+        .snap-center {
+            scroll-snap-align: center;
+        }
+        .dot-active {
+            width: 24px;
+            background-color: #000000;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#191c1e",
+                      "surface-container-highest": "#d5e3fc",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-container": "#818486",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-variant": "#d5e3fc",
+                      "primary": "#000000",
+                      "tertiary-container": "#191c1e",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed": "#00201d",
+                      "on-error-container": "#93000a",
+                      "on-secondary-container": "#006f66",
+                      "tertiary": "#000000",
+                      "primary-fixed": "#dae2fd",
+                      "outline-variant": "#c6c6cd",
+                      "secondary-container": "#86f2e4",
+                      "inverse-surface": "#233144",
+                      "on-surface": "#0d1c2e",
+                      "secondary": "#006a61",
+                      "secondary-fixed": "#89f5e7",
+                      "background": "#f8f9ff",
+                      "inverse-primary": "#bec6e0",
+                      "surface-container-high": "#dce9ff",
+                      "surface": "#f8f9ff",
+                      "primary-container": "#131b2e",
+                      "outline": "#76777d",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "on-background": "#0d1c2e",
+                      "surface-dim": "#ccdbf3",
+                      "on-primary-container": "#7c839b",
+                      "surface-container": "#e6eeff",
+                      "on-secondary-fixed-variant": "#005049",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-tint": "#565e74",
+                      "on-primary-fixed": "#131b2e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "touch-target-min": "48px",
+                      "gutter-mobile": "12px",
+                      "stack-sm": "8px",
+                      "unit": "4px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Atkinson Hyperlegible Next"],
+                      "body-md": ["Atkinson Hyperlegible Next"],
+                      "headline-md": ["Atkinson Hyperlegible Next"],
+                      "interactive-lg": ["Atkinson Hyperlegible Next"],
+                      "body-lg": ["Atkinson Hyperlegible Next"],
+                      "label-lg": ["Atkinson Hyperlegible Next"],
+                      "headline-lg": ["Atkinson Hyperlegible Next"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "interactive-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-md text-on-surface antialiased overflow-hidden">
+<!-- Top App Bar (Suppressed FAB and BottomNav for Transactional Flow) -->
+<header class="bg-surface-container-lowest text-primary docked full-width top-0 border-b-2 border-outline-variant flex justify-between items-center w-full px-margin-mobile h-touch-target-min z-50">
+<div class="flex items-center">
+<span class="text-headline-md font-headline-md font-black text-primary">EquiDoc</span>
+</div>
+<button class="text-label-lg font-label-lg px-stack-md py-unit hover:bg-surface-container transition-all active:scale-95 text-on-surface-variant" id="skipBtn">
+            Skip
+        </button>
+</header>
+<main class="relative h-[calc(100vh-48px)] flex flex-col">
+<!-- Swipeable Container -->
+<div class="flex-1 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar" id="carousel">
+<!-- Screen 1: Camera -->
+<section class="min-w-full h-full snap-center flex flex-col items-center justify-center px-margin-mobile text-center">
+<div class="w-full max-w-[600px] flex flex-col items-center">
+<div class="mb-stack-lg p-stack-lg bg-surface-container-low border-2 border-outline-variant rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-[80px] text-primary" data-icon="photo_camera">photo_camera</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-stack-md text-on-surface">Take a photo of a document you don't understand</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant px-stack-md">Focus clearly on the text of any complex form, letter, or legal paper.</p>
+</div>
+</section>
+<!-- Screen 2: AI Explainer -->
+<section class="min-w-full h-full snap-center flex flex-col items-center justify-center px-margin-mobile text-center">
+<div class="w-full max-w-[600px] flex flex-col items-center">
+<div class="relative mb-stack-lg p-stack-lg bg-secondary-container border-2 border-secondary rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-[80px] text-on-secondary-container" data-icon="forum">forum</span>
+<div class="absolute -bottom-2 -right-2 bg-primary p-2 rounded-full border-4 border-surface shadow-sm">
+<span class="material-symbols-outlined text-on-primary text-[24px]" data-icon="hearing">hearing</span>
+</div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-stack-md text-on-surface">We'll read it and explain it in your language, out loud</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant px-stack-md">AI breaks down jargon into simple steps you can listen to anywhere.</p>
+</div>
+</section>
+<!-- Screen 3: Privacy -->
+<section class="min-w-full h-full snap-center flex flex-col items-center justify-center px-margin-mobile text-center">
+<div class="w-full max-w-[600px] flex flex-col items-center">
+<div class="mb-stack-lg p-stack-lg bg-surface-container-low border-2 border-outline-variant rounded-xl flex items-center justify-center relative overflow-hidden">
+<span class="material-symbols-outlined text-[80px] text-on-surface-variant opacity-30" data-icon="description">description</span>
+<span class="material-symbols-outlined absolute text-[64px] text-error" data-icon="delete_forever" style="font-variation-settings: 'FILL' 1;">delete_forever</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-stack-md text-on-surface">Your photo is never kept — it's deleted right after</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant px-stack-md">We value your privacy. Your documents are processed and instantly purged from our servers.</p>
+<div class="mt-stack-lg w-full max-w-sm px-margin-mobile">
+<button class="w-full bg-primary text-on-primary font-interactive-lg text-interactive-lg py-stack-md px-stack-lg rounded-lg shadow-sm hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-stack-sm" id="getStartedBtn">
+                            Get Started
+                            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer / Pagination -->
+<footer class="h-24 flex flex-col items-center justify-center gap-stack-md bg-surface-container-lowest border-t border-outline-variant">
+<!-- Indicator Dots -->
+<div class="flex gap-2">
+<div class="dot h-2 w-2 rounded-full bg-outline-variant transition-all duration-300 dot-active" id="dot0"></div>
+<div class="dot h-2 w-2 rounded-full bg-outline-variant transition-all duration-300" id="dot1"></div>
+<div class="dot h-2 w-2 rounded-full bg-outline-variant transition-all duration-300" id="dot2"></div>
+</div>
+<p class="text-label-lg font-label-lg text-on-surface-variant px-margin-mobile text-center">
+                Not a lawyer warning: This is an AI summary, not legal advice.
+            </p>
+</footer>
+</main>
+<script>
+        const carousel = document.getElementById('carousel');
+        const dots = [
+            document.getElementById('dot0'),
+            document.getElementById('dot1'),
+            document.getElementById('dot2')
+        ];
+        const skipBtn = document.getElementById('skipBtn');
+        const getStartedBtn = document.getElementById('getStartedBtn');
+
+        // Scroll monitoring for dots
+        carousel.addEventListener('scroll', () => {
+            const index = Math.round(carousel.scrollLeft / window.innerWidth);
+            dots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('dot-active', 'bg-primary');
+                    dot.classList.remove('bg-outline-variant');
+                    dot.style.width = '24px';
+                } else {
+                    dot.classList.remove('dot-active', 'bg-primary');
+                    dot.classList.add('bg-outline-variant');
+                    dot.style.width = '8px';
+                }
+            });
+
+            // Toggle visibility of skip button if at end
+            if (index === 2) {
+                skipBtn.style.opacity = '0';
+                skipBtn.style.pointerEvents = 'none';
+            } else {
+                skipBtn.style.opacity = '1';
+                skipBtn.style.pointerEvents = 'auto';
+            }
+        });
+
+        // Navigation Actions
+        const finishOnboarding = () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => {
+                alert('Onboarding Complete. Redirecting to Scan Home...');
+            }, 400);
+        };
+
+        skipBtn.addEventListener('click', finishOnboarding);
+        getStartedBtn.addEventListener('click', finishOnboarding);
+
+        // Simple pull-to-refresh prevention
+        carousel.addEventListener('touchstart', (e) => {
+            if (carousel.scrollLeft === 0) {
+                // Potential first page scroll lock could go here
+            }
+        }, { passive: true });
+
+        // Auto-scroll hint for desktops
+        window.addEventListener('load', () => {
+            // No auto-scroll as per standard mobile-first UX
+        });
+    </script>
+</body></html>

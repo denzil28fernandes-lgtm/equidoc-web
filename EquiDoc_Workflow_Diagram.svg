@@ -1,0 +1,68 @@
+<svg viewBox="0 0 520 900" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="520" height="900" fill="#ffffff"/>
+  <text x="260" y="40" font-size="22" font-weight="700" fill="#1a1a2e" text-anchor="middle">EquiDoc — Core User Workflow</text>
+  <text x="260" y="64" font-size="13" fill="#6b7280" text-anchor="middle">Mobile-first PWA · from the PRD</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#4b5563"/>
+    </marker>
+  </defs>
+
+  <!-- Step 1 -->
+  <rect x="110" y="95" width="300" height="80" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="260" y="122" font-size="15" font-weight="700" fill="#312e81" text-anchor="middle">1 · Optical Intake</text>
+  <text x="260" y="145" font-size="12" fill="#374151" text-anchor="middle">User opens the web app and photographs</text>
+  <text x="260" y="161" font-size="12" fill="#374151" text-anchor="middle">a physical document with the camera</text>
+  <line x1="260" y1="175" x2="260" y2="205" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Privacy gate -->
+  <rect x="150" y="207" width="220" height="46" rx="8" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="260" y="228" font-size="11.5" font-weight="600" fill="#92400e" text-anchor="middle">Cloud-processing disclosure shown</text>
+  <text x="260" y="243" font-size="11.5" fill="#92400e" text-anchor="middle">in user's language, before capture</text>
+  <line x1="260" y1="253" x2="260" y2="283" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 2 -->
+  <rect x="110" y="285" width="300" height="80" rx="12" fill="#ecfeff" stroke="#06b6d4" stroke-width="2"/>
+  <text x="260" y="312" font-size="15" font-weight="700" fill="#155e75" text-anchor="middle">2 · Asynchronous Extraction</text>
+  <text x="260" y="335" font-size="12" fill="#374151" text-anchor="middle">Image uploaded to backend; a background</text>
+  <text x="260" y="351" font-size="12" fill="#374151" text-anchor="middle">job runs so the browser never stalls</text>
+  <line x1="260" y1="365" x2="260" y2="395" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Decision: quality -->
+  <polygon points="260,398 360,455 260,512 160,455" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="260" y="450" font-size="12" font-weight="700" fill="#991b1b" text-anchor="middle">OCR quality</text>
+  <text x="260" y="467" font-size="12" font-weight="700" fill="#991b1b" text-anchor="middle">good enough?</text>
+  <!-- No branch -->
+  <line x1="360" y1="455" x2="430" y2="455" stroke="#4b5563" stroke-width="2"/>
+  <text x="395" y="448" font-size="11" fill="#991b1b" text-anchor="middle">No</text>
+  <rect x="392" y="120" width="118" height="60" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="451" y="145" font-size="11.5" font-weight="600" fill="#991b1b" text-anchor="middle">Retake prompt</text>
+  <text x="451" y="162" font-size="11" fill="#991b1b" text-anchor="middle">+ image guidance</text>
+  <path d="M451,455 L451,180" fill="none" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- back to step1 -->
+  <line x1="392" y1="150" x2="380" y2="135" stroke="#4b5563" stroke-width="2"/>
+  <path d="M392,150 L410,150" fill="none" stroke="none"/>
+  <line x1="260" y1="512" x2="260" y2="542" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="275" y="532" font-size="11" fill="#166534">Yes</text>
+
+  <!-- Step 3 -->
+  <rect x="110" y="544" width="300" height="96" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+  <text x="260" y="571" font-size="15" font-weight="700" fill="#166534" text-anchor="middle">3 · Agentic Simplification</text>
+  <text x="260" y="593" font-size="12" fill="#374151" text-anchor="middle">AI extracts text, flags clauses needing</text>
+  <text x="260" y="609" font-size="12" fill="#374151" text-anchor="middle">attention, and rewrites the meaning in</text>
+  <text x="260" y="625" font-size="12" fill="#374151" text-anchor="middle">simple language in the target language</text>
+  <line x1="260" y1="640" x2="260" y2="670" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Step 4 -->
+  <rect x="110" y="672" width="300" height="80" rx="12" fill="#faf5ff" stroke="#a855f7" stroke-width="2"/>
+  <text x="260" y="699" font-size="15" font-weight="700" fill="#6b21a8" text-anchor="middle">4 · Auditory Playback</text>
+  <text x="260" y="722" font-size="12" fill="#374151" text-anchor="middle">Simplified summary returns to the device</text>
+  <text x="260" y="738" font-size="12" fill="#374151" text-anchor="middle">and is read aloud in the user's language</text>
+  <line x1="260" y1="752" x2="260" y2="782" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- End: cleanup -->
+  <rect x="130" y="784" width="260" height="60" rx="30" fill="#1a1a2e"/>
+  <text x="260" y="810" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">User understands the document</text>
+  <text x="260" y="829" font-size="11" fill="#c7d2fe" text-anchor="middle">Image deleted from storage immediately</text>
+</svg>

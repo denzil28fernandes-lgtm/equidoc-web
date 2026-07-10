@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Select Language - EquiDoc</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#191c1e",
+                    "surface-container-highest": "#d5e3fc",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#818486",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface-variant": "#d5e3fc",
+                    "primary": "#000000",
+                    "tertiary-container": "#191c1e",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed": "#00201d",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#006f66",
+                    "tertiary": "#000000",
+                    "primary-fixed": "#dae2fd",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-container": "#86f2e4",
+                    "inverse-surface": "#233144",
+                    "on-surface": "#0d1c2e",
+                    "secondary": "#006a61",
+                    "secondary-fixed": "#89f5e7",
+                    "background": "#f8f9ff",
+                    "inverse-primary": "#bec6e0",
+                    "surface-container-high": "#dce9ff",
+                    "surface": "#f8f9ff",
+                    "primary-container": "#131b2e",
+                    "outline": "#76777d",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#6bd8cb",
+                    "on-background": "#0d1c2e",
+                    "surface-dim": "#ccdbf3",
+                    "on-primary-container": "#7c839b",
+                    "surface-container": "#e6eeff",
+                    "on-secondary-fixed-variant": "#005049",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#e0e3e5",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "touch-target-min": "48px",
+                    "gutter-mobile": "12px",
+                    "stack-sm": "8px",
+                    "unit": "4px",
+                    "stack-lg": "24px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Atkinson Hyperlegible Next"],
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "headline-md": ["Atkinson Hyperlegible Next"],
+                    "interactive-lg": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "label-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "interactive-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        
+        .language-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .language-card.active {
+            border-width: 2px;
+            border-color: #000000;
+            background-color: #e6eeff;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-container selection:text-on-secondary-container">
+<header class="bg-surface-container-lowest flex justify-between items-center w-full px-margin-mobile h-touch-target-min border-b-2 border-outline-variant sticky top-0 z-50">
+<button class="flex items-center justify-center w-touch-target-min h-touch-target-min hover:bg-surface-container transition-transform duration-100 active:scale-95 text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="text-headline-md font-headline-md font-black text-primary">EquiDoc</span>
+<div class="flex items-center">
+<span class="text-label-lg font-label-lg text-primary font-bold">English</span>
+</div>
+</header>
+<main class="max-w-[600px] mx-auto px-margin-mobile pb-32">
+<div class="py-stack-lg">
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile mb-unit">Select Your Language</h1>
+<p class="text-body-md font-body-md text-on-surface-variant">Choose your preferred language for summaries and translations.</p>
+</div>
+<!-- Language Grid - Updated to match requested names/scripts -->
+<div class="grid grid-cols-1 gap-stack-sm" id="language-grid">
+<!-- English -->
+<button class="language-card active flex items-center justify-between p-stack-md bg-surface-container-lowest border-2 border-primary rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">English</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Amharic -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">አማርኛ</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Swahili -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">Kiswahili</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Yoruba -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">Èdè Yorùbá</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Hindi -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">हिन्दी</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Urdu -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">اردو</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Bengali -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">বাংলা</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Filipino -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">Wikang Filipino</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Nepali -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">नेपाली</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Vietnamese -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">Tiếng Việt</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Arabic -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">العربية</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+<!-- Spanish -->
+<button class="language-card flex items-center justify-between p-stack-md bg-surface-container-lowest border border-outline-variant rounded-lg text-left w-full h-[64px] min-h-touch-target-min active:scale-[0.98] transition-transform hover:bg-surface-container-low" onclick="selectLanguage(this)">
+<span class="text-body-lg font-body-lg font-bold">Español</span>
+<span class="material-symbols-outlined text-outline hidden">circle</span>
+</button>
+</div>
+</main>
+<footer class="w-full px-margin-mobile py-stack-lg mb-[100px] text-center bg-surface-container-low border-t border-outline-variant">
+<p class="text-body-md font-body-md text-on-surface-variant mb-unit">
+        Not a lawyer warning: This is an AI summary, not legal advice. Data deleted instantly.
+    </p>
+<div class="flex justify-center gap-stack-md">
+<a class="text-on-surface-variant text-body-md font-body-md hover:text-primary" href="#">Privacy</a>
+<a class="text-on-surface-variant text-body-md font-body-md hover:text-primary" href="#">Terms</a>
+</div>
+</footer>
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest p-margin-mobile border-t-2 border-outline-variant z-50">
+<div class="max-w-[600px] mx-auto">
+<button class="w-full bg-primary text-on-primary font-interactive-lg text-interactive-lg py-stack-md rounded-lg active:scale-95 transition-transform duration-100 flex items-center justify-center gap-unit">
+            Continue
+            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<script>
+    function selectLanguage(element) {
+        document.querySelectorAll('.language-card').forEach(card => {
+            card.classList.remove('active', 'border-primary', 'border-2');
+            card.classList.add('border-outline-variant', 'border');
+            card.style.backgroundColor = '';
+            
+            const icon = card.querySelector('.material-symbols-outlined');
+            icon.innerText = 'circle';
+            icon.classList.add('hidden');
+            icon.style.fontVariationSettings = "'FILL' 0";
+        });
+
+        element.classList.add('active', 'border-2', 'border-primary');
+        element.classList.remove('border-outline-variant', 'border');
+        element.style.backgroundColor = '#e6eeff';
+        
+        const activeIcon = element.querySelector('.material-symbols-outlined');
+        activeIcon.innerText = 'check_circle';
+        activeIcon.classList.remove('hidden');
+        activeIcon.classList.add('text-primary');
+        activeIcon.style.fontVariationSettings = "'FILL' 1";
+
+        if (window.navigator.vibrate) {
+            window.navigator.vibrate(10);
+        }
+    }
+</script>
+</body></html>

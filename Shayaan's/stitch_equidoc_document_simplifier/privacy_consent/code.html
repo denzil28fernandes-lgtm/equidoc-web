@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#191c1e",
+                    "surface-container-highest": "#d5e3fc",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#818486",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface-variant": "#d5e3fc",
+                    "primary": "#000000",
+                    "tertiary-container": "#191c1e",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed": "#00201d",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#006f66",
+                    "tertiary": "#000000",
+                    "primary-fixed": "#dae2fd",
+                    "outline-variant": "#c6c6cd",
+                    "secondary-container": "#86f2e4",
+                    "inverse-surface": "#233144",
+                    "on-surface": "#0d1c2e",
+                    "secondary": "#006a61",
+                    "secondary-fixed": "#89f5e7",
+                    "background": "#f8f9ff",
+                    "inverse-primary": "#bec6e0",
+                    "surface-container-high": "#dce9ff",
+                    "surface": "#f8f9ff",
+                    "primary-container": "#131b2e",
+                    "outline": "#76777d",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#6bd8cb",
+                    "on-background": "#0d1c2e",
+                    "surface-dim": "#ccdbf3",
+                    "on-primary-container": "#7c839b",
+                    "surface-container": "#e6eeff",
+                    "on-secondary-fixed-variant": "#005049",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#e0e3e5",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed": "#131b2e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "touch-target-min": "48px",
+                    "gutter-mobile": "12px",
+                    "stack-sm": "8px",
+                    "unit": "4px",
+                    "stack-lg": "24px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Atkinson Hyperlegible Next"],
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "headline-md": ["Atkinson Hyperlegible Next"],
+                    "interactive-lg": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "label-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "interactive-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pulse-soft {
+            animation: pulse-opac 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-opac {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen">
+<!-- TopAppBar (Based on Shared Components JSON) -->
+<header class="bg-surface-container-lowest dark:bg-surface-container-lowest border-b-2 border-outline-variant dark:border-outline-variant fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-touch-target-min">
+<div class="flex items-center gap-unit transition-transform active:scale-95 duration-100">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</div>
+<h1 class="text-headline-md font-headline-md font-black text-primary dark:text-primary">EquiDoc</h1>
+<div class="flex items-center px-unit py-unit hover:bg-surface-container dark:hover:bg-surface-container rounded-lg cursor-pointer">
+<span class="text-label-lg font-label-lg text-primary">English</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center pt-24 pb-32 px-margin-mobile max-w-[600px] mx-auto w-full">
+<!-- Processing Status (Implicit in Design System Guidance) -->
+<div class="w-full mb-stack-lg">
+<div class="h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full w-1/3 bg-secondary pulse-soft"></div>
+</div>
+<p class="text-label-lg font-label-lg text-secondary mt-unit text-center">PRIVACY CHECK</p>
+</div>
+<!-- Privacy Card -->
+<div class="w-full bg-surface-container-lowest border-2 border-outline-variant p-stack-lg rounded-xl mb-stack-lg flex flex-col gap-stack-md">
+<!-- Icon Sequence (Visual icon: photo -> cloud -> trash) -->
+<div class="flex justify-around items-center py-stack-md bg-surface-container-low rounded-lg border border-outline-variant">
+<div class="flex flex-col items-center gap-unit">
+<span class="material-symbols-outlined text-[40px] text-primary" data-icon="photo_camera">photo_camera</span>
+<span class="text-label-lg font-label-lg">PHOTO</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="arrow_forward">arrow_forward</span>
+<div class="flex flex-col items-center gap-unit">
+<span class="material-symbols-outlined text-[40px] text-secondary" data-icon="cloud_upload">cloud_upload</span>
+<span class="text-label-lg font-label-lg">SECURE</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="arrow_forward">arrow_forward</span>
+<div class="flex flex-col items-center gap-unit">
+<span class="material-symbols-outlined text-[40px] text-error" data-icon="delete_forever">delete_forever</span>
+<span class="text-label-lg font-label-lg">DELETED</span>
+</div>
+</div>
+<div class="border-l-4 border-secondary pl-stack-md py-unit">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary mb-unit">Your Privacy Matters</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant leading-tight">
+                    Your photo is sent to a secure service to read it, then deleted. We do not keep your document.
+                </p>
+</div>
+</div>
+<!-- Action Buttons (Thumb-Driven Design) -->
+<div class="w-full flex flex-col gap-stack-md mt-auto">
+<button class="w-full h-touch-target-min bg-primary text-on-primary text-interactive-lg font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-stack-sm shadow-sm">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+                I agree, continue
+            </button>
+<button class="w-full h-touch-target-min bg-surface-container-lowest text-on-surface border-2 border-outline text-interactive-lg font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-stack-sm">
+<span class="material-symbols-outlined" data-icon="cancel">cancel</span>
+                No, don't continue
+            </button>
+</div>
+</main>
+<!-- Footer (Based on Shared Components JSON) -->
+<footer class="w-full px-margin-mobile py-stack-lg mb-20 text-center bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant">
+<p class="text-body-md font-body-md text-on-surface-variant dark:text-on-surface-variant max-w-[400px] mx-auto">
+            Not a lawyer warning: This is an AI summary, not legal advice. Data deleted instantly.
+        </p>
+<div class="mt-stack-sm flex justify-center gap-stack-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-lg font-label-lg" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-lg font-label-lg" href="#">Terms</a>
+</div>
+</footer>
+<!-- BottomNavBar (Based on Shared Components JSON) -->
+<!-- Note: On "Consent" (Transactional) screens, we typically suppress main nav as per rules, 
+         but we keep it for context if it's the gateway to the main app functionality -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter-mobile pb-safe bg-surface-container-lowest border-t-2 border-outline-variant h-[72px]">
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-stack-md py-unit opacity-80 scale-95 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="photo_camera" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+<span class="text-label-lg font-label-lg">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low p-unit rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-label-lg font-label-lg">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low p-unit rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-lg font-label-lg">Settings</span>
+</a>
+</nav>
+</body></html>

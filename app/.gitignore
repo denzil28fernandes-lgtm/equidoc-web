@@ -1,0 +1,15 @@
+# dependencies
+node_modules
+.npm-cache
+
+# build output
+dist
+
+# secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+
+# logs / os
+*.log
+.DS_Store
