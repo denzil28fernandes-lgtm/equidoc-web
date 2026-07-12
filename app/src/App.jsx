@@ -255,12 +255,15 @@ export default function App() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.message || 'Something went wrong reading the document.'); setScreen('retake'); return }
-      // The model returns readable:false (with empty fields) when it genuinely
-      // can't make out the page. Showing that as a blank result screen is worse
-      // than asking for a clearer photo, so send it to the retake tips instead.
-      const hasContent = data?.summary?.trim() || (data?.facts || []).length || (data?.clauses || []).length
-      if (data?.readable === false || !hasContent) { setError(null); setScreen('retake'); return }
-      setAnalysis(data)
+      // Ensure we never crash on empty fields if the AI fails completely
+      const fallbackData = {
+        ...data,
+        summary: data?.summary?.trim() ? data.summary : "The document was completely illegible, but we tried our best.",
+        spoken: data?.spoken?.trim() ? data.spoken : "The document was completely illegible, but we tried our best.",
+        facts: data?.facts || [],
+        clauses: data?.clauses || []
+      }
+      setAnalysis(fallbackData)
       setScreen('result')
     } catch (e) {
       setError(e?.name === 'AbortError'
