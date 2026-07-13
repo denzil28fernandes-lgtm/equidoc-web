@@ -2,8 +2,8 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // Google AI Studio Model
-// PRD Recommended Production Model: Gemini 3.5 Flash
-const MODEL = 'gemini-3.5-flash'
+// Uses the 'gemini-flash-latest' alias — always Google's current Flash model, so it won't get retired for new-user keys.
+const MODEL = 'gemini-flash-latest'
 
 function buildPrompt(language) {
   const lang = language || 'English'
@@ -56,8 +56,9 @@ function geminiProxy(env) {
         try {
           let raw = ''
           for await (const chunk of req) raw += chunk
-          const { image, language } = JSON.parse(raw || '{}')
-          if (!image) return send(400, { error: 'no_image', message: 'No photo was received.' })
+          const { image, images, language } = JSON.parse(raw || '{}')
+          const imageList = images || (image ? [image] : [])
+          if (imageList.length === 0) return send(400, { error: 'no_image', message: 'No photo was received.' })
 
           const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
             method: 'POST',
@@ -70,7 +71,7 @@ function geminiProxy(env) {
                   role: 'user',
                   parts: [
                     { text: buildPrompt(language) },
-                    { inlineData: { mimeType: 'image/jpeg', data: image } }
+                    ...imageList.map((img) => ({ inlineData: { mimeType: 'image/jpeg', data: img } }))
                   ]
                 }
               ],

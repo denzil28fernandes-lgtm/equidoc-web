@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const key = process.env.GEMINI_API_KEY
   if (!key) return res.status(500).json({ error: 'no_key', message: 'Missing GEMINI_API_KEY environment variable on Vercel.' })
 
-  const MODEL = 'gemini-3.5-flash'
+  const MODEL = 'gemini-flash-latest'
   const { message, language, documentContext } = req.body
 
   try {
