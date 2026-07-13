@@ -70,12 +70,21 @@ const FALLBACK = {
     { emoji: '📆', label: 'How long', value: '12 months · living in the home' },
   ],
   clauses: [
-    { emoji: '⏰', title: 'It asks you to sign within 24 hours', desc: 'You can ask for more time to understand it first. A short deadline is not a reason to rush.' },
-    { emoji: '💵', title: 'You may owe $2,400 if you leave early', desc: 'This clause says that ending the job before 12 months means repaying recruitment costs.' },
-    { emoji: '🔒', title: 'No other employer for 12 months after', desc: 'After this job ends, this clause limits working for a different employer for one year.' },
+    { emoji: '⏰', title: 'It asks you to sign within 24 hours', desc: 'This means you could feel rushed. You do not have to sign today — you can ask for more time to understand it first.' },
+    { emoji: '💵', title: 'You may owe $2,400 if you leave early', desc: 'This means you would have to pay back about $2,400 in hiring costs if you stop working before 12 months — that is about two months of your pay.' },
+    { emoji: '🔒', title: 'No other employer for 12 months after', desc: 'This means you could not take a job with a different employer for one year after this job ends.' },
+  ],
+  nextSteps: [
+    { emoji: '🕒', text: 'Do not sign today. You are allowed to take it home and read it first.' },
+    { emoji: '🤝', text: 'Ask a caseworker, a trusted friend, or a free migrant-worker helpline to read it with you before you sign.' },
+    { emoji: '💵', text: 'Before you sign, ask exactly how much you would owe if you had to leave early.' },
+  ],
+  glossary: [
+    { term: 'Recruitment costs', plain: 'Money the agency spent to hire you. This paper says you may have to pay it back if you leave early.' },
+    { term: 'Term', plain: 'How long the job lasts — here it is 12 months.' },
   ],
   originalText: '"The Employee agrees to a term of twelve (12) months commencing on the date of signature… remuneration of USD 1,200 per calendar month… working hours not exceeding fourteen (14) hours per day, six (6) days weekly…"',
-  spoken: 'This is an employment contract for a live-in domestic worker. You would work for the same household for twelve months, starting when you sign. Monthly pay is one thousand two hundred dollars. Working time is fourteen hours a day, six days a week. Worth paying attention to: it asks you to sign within twenty four hours, you may owe two thousand four hundred dollars if you leave early, and it limits working for another employer for twelve months after. Remember, this is not legal advice.',
+  spoken: 'Hello. This is an employment contract for a live-in domestic worker. You would work for the same household for twelve months, starting when you sign. Your pay is one thousand two hundred dollars each month. You would work fourteen hours a day, six days a week. Please pay attention to a few things. It asks you to sign within twenty four hours, but you do not have to rush. You may owe about two thousand four hundred dollars if you leave early. And it stops you from working for another employer for twelve months after. Here is what you can do now. You do not have to sign today — you can take it home and read it first. Ask a caseworker or someone you trust to read it with you. And before you sign, ask how much you would owe if you had to leave early. Remember, this explains the document, but it is not legal advice.',
 }
 
 export default function App() {
@@ -205,7 +214,9 @@ export default function App() {
         summary: data?.summary?.trim() ? data.summary : "The document was completely illegible, but we tried our best.",
         spoken: data?.spoken?.trim() ? data.spoken : "The document was completely illegible, but we tried our best.",
         facts: data?.facts || [],
-        clauses: data?.clauses || []
+        clauses: data?.clauses || [],
+        nextSteps: data?.nextSteps || [],
+        glossary: data?.glossary || []
       }
       setAnalysis(fallbackData)
       setScreen('result')
@@ -655,6 +666,45 @@ export default function App() {
                           <span style={css('font-size:14.5px; font-weight:700; color:#16211F;')}>{c.title}</span>
                         </div>
                         <p style={css('font-size:13.5px; color:#5C726E; line-height:1.55; margin:0;')}>{c.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* what you can do */}
+              {(a.nextSteps || []).length > 0 && (
+                <>
+                  <div style={css('display:flex; align-items:center; gap:8px; margin-bottom:4px;')}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0F7C6B" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    <span style={css('font-size:15px; font-weight:800; color:#16211F;')}>What you can do</span>
+                  </div>
+                  <p style={css('font-size:13px; color:#7E9490; line-height:1.5; margin:0 0 12px;')}>Simple next steps. This is not legal advice — it is what many people do first.</p>
+
+                  <div style={css('display:flex; flex-direction:column; gap:9px; margin-bottom:18px;')}>
+                    {a.nextSteps.map((s, i) => (
+                      <div key={i} style={{ background: '#F2FAF9', border: '1px solid #CDE9E3', borderLeft: '4px solid #0F7C6B', borderRadius: '14px', padding: '13px 15px', display: 'flex', alignItems: 'flex-start', gap: '11px', direction: selLang?.rtl ? 'rtl' : 'ltr' }}>
+                        <span style={css('font-size:19px; line-height:1.4;')}>{s.emoji || '✅'}</span>
+                        <p style={css('font-size:14px; color:#28352F; line-height:1.55; margin:0; font-weight:600;')}>{s.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* hard words made simple */}
+              {(a.glossary || []).length > 0 && (
+                <>
+                  <div style={css('display:flex; align-items:center; gap:8px; margin-bottom:8px;')}>
+                    <span style={css('font-size:16px;')}>📖</span>
+                    <span style={css('font-size:15px; font-weight:800; color:#16211F;')}>Hard words, made simple</span>
+                  </div>
+
+                  <div style={css('display:flex; flex-direction:column; gap:8px; margin-bottom:18px;')}>
+                    {a.glossary.map((g, i) => (
+                      <div key={i} style={{ background: '#F5F8F7', borderRadius: '12px', padding: '11px 14px', direction: selLang?.rtl ? 'rtl' : 'ltr' }}>
+                        <div style={css('font-size:14px; font-weight:800; color:#16211F; margin-bottom:2px;')}>{g.term}</div>
+                        <div style={css('font-size:13.5px; color:#5C726E; line-height:1.5;')}>{g.plain}</div>
                       </div>
                     ))}
                   </div>
