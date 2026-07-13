@@ -35,9 +35,12 @@ const LANGS = [
   { id: 'bn', flag: '🇧🇩', native: 'বাংলা',    label: 'Bengali',   rtl: false, bcp: 'bn-BD' },
   { id: 'ta', flag: '🇮🇳', native: 'தமிழ்',    label: 'Tamil',     rtl: false, bcp: 'ta-IN' },
   { id: 'ml', flag: '🇮🇳', native: 'മലയാളം',  label: 'Malayalam', rtl: false, bcp: 'ml-IN' },
+  { id: 'te', flag: '🇮🇳', native: 'తెలుగు',   label: 'Telugu',    rtl: false, bcp: 'te-IN' },
   { id: 'ur', flag: '🇵🇰', native: 'اردو',     label: 'Urdu',      rtl: true,  bcp: 'ur-PK' },
   { id: 'ar', flag: '🇸🇦', native: 'العربية',  label: 'Arabic',    rtl: true,  bcp: 'ar-SA' },
   { id: 'am', flag: '🇪🇹', native: 'አማርኛ',    label: 'Amharic',   rtl: false, bcp: 'am-ET' },
+  { id: 'es', flag: '🇪🇸', native: 'Español',  label: 'Spanish',   rtl: false, bcp: 'es-ES' },
+  { id: 'fr', flag: '🇫🇷', native: 'Français', label: 'French',    rtl: false, bcp: 'fr-FR' },
 ]
 
 const PROC_STEPS = [
@@ -90,6 +93,7 @@ const FALLBACK = {
 export default function App() {
   const [screen, setScreen] = useState('language')
   const [lang, setLang] = useState(null)
+  const [langSearch, setLangSearch] = useState('')
   const [consent, setConsent] = useState(false)
   const [procStep, setProcStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -442,10 +446,30 @@ export default function App() {
                 <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#0F7C6B" strokeWidth="1.8" /><path d="M3 12h18M12 2.8c2.6 2.4 2.6 16 0 18.4M12 2.8c-2.6 2.4-2.6 16 0 18.4" stroke="#0F7C6B" strokeWidth="1.8" fill="none" /></svg>
               </div>
               <div style={css('font-size:22px; font-weight:800; color:#16211F; letter-spacing:-0.5px;')}>Choose your language</div>
-              <div style={css('font-size:14px; color:#6E8480; margin-bottom:20px; text-align:center;')}>Tap to hear the app in your language</div>
+              <div style={css('font-size:14px; color:#6E8480; margin-bottom:16px; text-align:center;')}>Tap to hear the app in your language</div>
+
+              <div style={css('position:relative; width:100%; margin-bottom:14px;')}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><circle cx="11" cy="11" r="7" stroke="#9DB0AC" strokeWidth="2" /><path d="M21 21l-4.3-4.3" stroke="#9DB0AC" strokeWidth="2" strokeLinecap="round" /></svg>
+                <input
+                  type="text"
+                  value={langSearch}
+                  onChange={(e) => setLangSearch(e.target.value)}
+                  placeholder="Search language…"
+                  aria-label="Search language"
+                  style={css('width:100%; box-sizing:border-box; padding:12px 14px 12px 40px; border:2px solid #E2ECEA; border-radius:14px; background:#FAFBFB; font-size:15px; color:#16211F; outline:none;')}
+                />
+              </div>
 
               <div style={css('display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;')}>
-                {LANGS.map((l) => {
+                {(() => {
+                  const q = langSearch.trim().toLowerCase()
+                  const filtered = q
+                    ? LANGS.filter((l) => l.label.toLowerCase().includes(q) || l.native.toLowerCase().includes(q) || l.id.includes(q))
+                    : LANGS
+                  if (filtered.length === 0) {
+                    return <div style={css('grid-column:1 / -1; text-align:center; color:#7E9490; font-size:14px; padding:20px 0;')}>No language found</div>
+                  }
+                  return filtered.map((l) => {
                   const selected = lang === l.id
                   return (
                     <div
@@ -465,7 +489,8 @@ export default function App() {
                       <span style={css('font-size:11px; color:#7E9490;')}>{l.label}</span>
                     </div>
                   )
-                })}
+                  })
+                })()}
               </div>
 
               <div style={css('margin-top:22px;')}>
