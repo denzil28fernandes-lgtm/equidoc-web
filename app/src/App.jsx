@@ -115,6 +115,8 @@ export default function App() {
   const speakingRef = useRef(false)
   const utteranceRef = useRef(null)
   const chatEndRef = useRef(null)
+  const resumeAtRef = useRef(0)  // char offset to resume speech from after a pause
+  const lastCharRef = useRef(0)  // latest char offset the voice has reached
 
   useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
@@ -154,6 +156,9 @@ export default function App() {
   const cancelSpeech = () => {
     if (hasSpeech) window.speechSynthesis.cancel()
     speakingRef.current = false
+    resumeAtRef.current = 0
+    lastCharRef.current = 0
+    setProgress(0)
   }
 
   // Pre-load voices on mount so they are ready for the synchronous call
@@ -174,17 +179,23 @@ export default function App() {
 
   // ---- native multi-page camera ----
   const MAX_EDGE = 1600
+  // Resolves to a base64 JPEG string, or null if the file can't be read/decoded
+  // (corrupt file, non-image picked despite the accept filter) so we never hang.
   const processFile = (file) => new Promise((resolve) => {
     const reader = new FileReader()
+    reader.onerror = () => resolve(null)
     reader.onload = (e) => {
       const img = new Image()
+      img.onerror = () => resolve(null)
       img.onload = () => {
-        const scale = Math.min(1, MAX_EDGE / Math.max(img.width, img.height))
-        const w = Math.max(1, Math.round(img.width * scale)), h = Math.max(1, Math.round(img.height * scale))
-        const c = document.createElement('canvas')
-        c.width = w; c.height = h
-        c.getContext('2d').drawImage(img, 0, 0, w, h)
-        resolve(c.toDataURL('image/jpeg', 0.92).split(',')[1])
+        try {
+          const scale = Math.min(1, MAX_EDGE / Math.max(img.width, img.height))
+          const w = Math.max(1, Math.round(img.width * scale)), h = Math.max(1, Math.round(img.height * scale))
+          const c = document.createElement('canvas')
+          c.width = w; c.height = h
+          c.getContext('2d').drawImage(img, 0, 0, w, h)
+          resolve(c.toDataURL('image/jpeg', 0.92).split(',')[1])
+        } catch { resolve(null) }
       }
       img.src = e.target.result
     }
@@ -194,8 +205,8 @@ export default function App() {
   const handleFiles = async (e) => {
     if (!e.target.files || !e.target.files.length) return
     const files = Array.from(e.target.files)
-    const b64s = await Promise.all(files.map(processFile))
-    setPhotos(prev => [...prev, ...b64s])
+    const b64s = (await Promise.all(files.map(processFile))).filter(Boolean)
+    if (b64s.length) setPhotos(prev => [...prev, ...b64s])
     e.target.value = '' // reset input
   }
 
@@ -210,19 +221,30 @@ export default function App() {
         body: JSON.stringify({ images: imagesB64Array, language: selLang?.label || 'English' }),
         signal: ctrl.signal,
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.message || 'Something went wrong reading the document.'); setScreen('retake'); return }
-      // Ensure we never crash on empty fields if the AI fails completely
-      const fallbackData = {
+      // The body may not be JSON (e.g. a Vercel 504 gateway HTML page) — don't crash on parse.
+      let data = null
+      try { data = await res.json() } catch { data = null }
+      if (!res.ok) {
+        setError((data && data.message) || 'Something went wrong reading the document.')
+        setScreen('retake'); return
+      }
+      // Unreadable / empty result → offer a retake, never a fabricated summary (PRD §8).
+      if (!data || data.readable === false || !data.summary?.trim()) {
+        setError(null) // null → the friendly "photo was hard to read" retake screen
+        setScreen('retake'); return
+      }
+      // Fill defaults so the result screen never crashes on missing fields.
+      const clean = {
         ...data,
-        summary: data?.summary?.trim() ? data.summary : "The document was completely illegible, but we tried our best.",
-        spoken: data?.spoken?.trim() ? data.spoken : "The document was completely illegible, but we tried our best.",
+        confidence: (data.confidence === 'clear' || data.confidence === 'partial') ? data.confidence : 'partial',
+        summary: data.summary.trim(),
+        spoken: data?.spoken?.trim() ? data.spoken : data.summary.trim(),
         facts: data?.facts || [],
         clauses: data?.clauses || [],
         nextSteps: data?.nextSteps || [],
         glossary: data?.glossary || []
       }
-      setAnalysis(fallbackData)
+      setAnalysis(clean)
       setScreen('result')
     } catch (e) {
       setError(e?.name === 'AbortError'
@@ -256,55 +278,61 @@ export default function App() {
   const a = analysis || FALLBACK
   const spokenText = a.spoken || a.summary
 
-  const playAudio = (restart = false) => {
+  // Speak the summary starting at a character offset into spokenText.
+  // We avoid synth.pause()/resume() entirely (it can lock up the audio engine on
+  // iOS Safari); instead pause = cancel + remember position, resume = speak the
+  // remaining substring. This gives real pause/resume on every platform.
+  const speakFrom = (startChar, speedOverride) => {
     if (!hasSpeech) return
     const synth = window.speechSynthesis
-    
-    // Resume if paused
-    if (synth.paused && speakingRef.current && !restart) { 
-      synth.resume()
-      setIsPlaying(true)
-      return 
-    }
-
-    // Otherwise start fresh
     synth.cancel()
-    setProgress(0)
-    const u = new SpeechSynthesisUtterance(spokenText || 'No summary to read.')
-    u.rate = speed === 1 ? 1 : 0.7
+    const full = spokenText || 'No summary to read.'
+    const start = Math.min(Math.max(0, startChar || 0), Math.max(0, full.length - 1))
+    const u = new SpeechSynthesisUtterance(full.slice(start))
+    const sp = speedOverride == null ? speed : speedOverride
+    u.rate = sp === 1 ? 1 : 0.7
     const voices = synth.getVoices()
     const base = ttsLang.split('-')[0].toLowerCase()
     const match = voices.find((v) => v.lang?.toLowerCase().startsWith(base))
-    if (match) {
-      u.voice = match
-      u.lang = match.lang
-    } else {
-      u.lang = ttsLang
-    }
-    
+    if (match) { u.voice = match; u.lang = match.lang } else { u.lang = ttsLang }
+
+    lastCharRef.current = start
     u.onboundary = (e) => {
       if (e.name === 'word') {
-        const textLen = (spokenText || 'No summary to read.').length
-        setProgress(Math.min(100, (e.charIndex / textLen) * 100))
+        const abs = start + e.charIndex
+        lastCharRef.current = abs
+        setProgress(Math.min(100, (abs / full.length) * 100))
       }
     }
-    u.onend = () => { speakingRef.current = false; setIsPlaying(false); setProgress((p) => (p > 0 ? 100 : 0)) }
-    u.onerror = () => { speakingRef.current = false; setIsPlaying(false); setProgress(0) }
-    
+    u.onend = () => {
+      speakingRef.current = false; setIsPlaying(false)
+      setProgress((p) => (p > 0 ? 100 : 0))
+      resumeAtRef.current = 0; lastCharRef.current = 0
+    }
+    // 'interrupted' / 'canceled' come from our own cancel() on pause or restart — ignore them.
+    u.onerror = (e) => {
+      if (e.error === 'interrupted' || e.error === 'canceled') return
+      speakingRef.current = false; setIsPlaying(false)
+    }
+
     speakingRef.current = true
     setIsPlaying(true)
     utteranceRef.current = u
     synth.speak(u)
   }
 
+  const playAudio = (restart = false) => {
+    if (!hasSpeech) return
+    if (restart) { setProgress(0); resumeAtRef.current = 0; lastCharRef.current = 0; speakFrom(0); return }
+    speakFrom(resumeAtRef.current || 0) // fresh play or resume from where we paused
+  }
+
   const pauseAudio = () => {
     if (!hasSpeech) return
-    const synth = window.speechSynthesis
-    // iOS Safari has a fatal bug where synth.pause() can lock up the audio engine entirely.
-    // The safest workaround is to cancel and restart from the beginning.
-    synth.cancel()
+    resumeAtRef.current = lastCharRef.current // remember position; progress bar holds
+    window.speechSynthesis.cancel()
+    speakingRef.current = false
     setIsPlaying(false)
-    setProgress(0)
   }
 
   useEffect(() => () => { cancelSpeech() }, []) // unmount cleanup
@@ -381,12 +409,10 @@ export default function App() {
     }
   }
   const toggleSpeed = () => {
-    setSpeed((s) => (s === 1 ? 0.5 : 1))
-    if (isPlaying) {
-      cancelSpeech()
-      setIsPlaying(false)
-      setProgress(0)
-    }
+    const next = speed === 1 ? 0.5 : 1
+    setSpeed(next)
+    // If currently playing, keep going from the same spot at the new rate.
+    if (isPlaying) speakFrom(lastCharRef.current, next)
   }
 
   const doUnderstand = () => { cancelSpeech(); setIsPlaying(false); setComprehension('understood'); setScreen('done') }
@@ -394,7 +420,9 @@ export default function App() {
   const doReset = () => {
     cancelSpeech(); setIsPlaying(false); setProgress(0); setConsent(false)
     setShowSource(false); setComprehension(null); setFeedback(null)
-    setAnalysis(null); setError(null); setScreen('capture')
+    setAnalysis(null); setError(null)
+    setPhotos([]); setChatHistory([]) // start the next document clean
+    setScreen('capture')
   }
 
   const understood = comprehension === 'understood'

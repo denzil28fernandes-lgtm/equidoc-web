@@ -2,6 +2,20 @@ export const config = {
   maxDuration: 60, // allow up to 60s for Gemini API processing
 }
 
+const MODEL = 'gemini-flash-latest'
+
+// Documents we read (evictions, contracts, medical, benefits) legitimately contain
+// harsh legal wording. Turn off Gemini's content blocking so a real document is never
+// refused — our job is to explain it faithfully, not to moderate it.
+const SAFETY_SETTINGS = [
+  { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+  { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+  { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+  { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+]
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
 // Canonical EquiDoc prompt. Keep this IN SYNC with the copy in vite.config.js
 // (the local dev proxy). The goal is not just to say what the document means,
 // but to tell the reader — in their language, simply — what they can do about it.
@@ -42,55 +56,104 @@ CRITICAL RULES:
 - Be objective and kind. Explain options and who can help, but do NOT give legal advice.`
 }
 
+// One call to Gemini, classified so the caller can decide whether to retry:
+//   { kind: 'ok', json }                    — parsed a usable result
+//   { kind: 'transient', status, message }  — 429/500/503/network: worth retrying
+//   { kind: 'empty', finishReason, blockReason } — 200 but no usable JSON (bad output or a safety block)
+//   { kind: 'fatal', status, message }      — e.g. bad key: retrying won't help
+async function callGemini(key, body) {
+  let r
+  try {
+    r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch (e) {
+    return { kind: 'transient', message: String(e?.message || e) }
+  }
+
+  if (!r.ok) {
+    const text = (await r.text()).slice(0, 600)
+    if (r.status === 429 || r.status === 500 || r.status === 502 || r.status === 503) {
+      return { kind: 'transient', status: r.status, message: text }
+    }
+    return { kind: 'fatal', status: r.status, message: text }
+  }
+
+  const data = await r.json()
+  const cand = data?.candidates?.[0]
+  const finishReason = cand?.finishReason || null
+  const blockReason = data?.promptFeedback?.blockReason || null
+  let text = cand?.content?.parts?.[0]?.text || ''
+  text = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim()
+  const s = text.indexOf('{'), e = text.lastIndexOf('}')
+  const jsonStr = s >= 0 && e > s ? text.slice(s, e + 1) : text
+  try {
+    return { kind: 'ok', json: JSON.parse(jsonStr) }
+  } catch {
+    return { kind: 'empty', finishReason, blockReason }
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
 
   const key = process.env.GEMINI_API_KEY
   if (!key) return res.status(500).json({ error: 'no_key', message: 'Missing GEMINI_API_KEY environment variable on Vercel.' })
 
-  const MODEL = 'gemini-flash-latest'
   const { image, images, language } = req.body
   const imageList = images || (image ? [image] : [])
   if (imageList.length === 0) return res.status(400).json({ error: 'no_image', message: 'No photo received.' })
 
   const lang = language || 'English'
   const today = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD, for deadline urgency
-  const prompt = buildPrompt(lang, today)
+  const requestBody = {
+    contents: [{
+      role: 'user',
+      parts: [
+        { text: buildPrompt(lang, today) },
+        ...imageList.map((img) => ({ inlineData: { mimeType: 'image/jpeg', data: img } })),
+      ],
+    }],
+    generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+    safetySettings: SAFETY_SETTINGS,
+  }
+
+  // Balanced retry: transient errors (429/503/500/network) fail fast, so retry them
+  // cheaply with backoff. An empty/blocked result costs a full re-analysis, so only
+  // retry that while there's time left before the 60s function limit.
+  const MAX_ATTEMPTS = 3
+  const SLOW_RETRY_BUDGET_MS = 35000
+  const startedAt = Date.now()
+  let last = null
 
   try {
-    const imageParts = imageList.map(img => ({ inlineData: { mimeType: 'image/jpeg', data: img } }))
-    
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [
-            { text: prompt },
-            ...imageParts
-          ]
-        }],
-        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' }
-      })
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const out = await callGemini(key, requestBody)
+      if (out.kind === 'ok') return res.status(200).json(out.json)
+      if (out.kind === 'fatal') {
+        let message = out.message
+        if (out.status === 400 && message.includes('API_KEY_INVALID')) message = 'Google AI Studio rejected the API key.'
+        return res.status(502).json({ error: 'gemini_error', status: out.status, message })
+      }
+      last = out
+      if (attempt === MAX_ATTEMPTS) break
+      // Don't start a slow re-analysis if we're already low on time budget.
+      if (out.kind === 'empty' && Date.now() - startedAt > SLOW_RETRY_BUDGET_MS) break
+      await sleep(attempt * 1000) // 1s, then 2s
+    }
+
+    if (last?.kind === 'transient') {
+      return res.status(503).json({ error: 'overloaded', message: 'The reader is very busy right now. Please try again in a moment.' })
+    }
+    // Exhausted on an empty/blocked result — return a clean "unreadable" (with diagnostics)
+    // so the app shows the retake screen, never a fabricated summary.
+    return res.status(200).json({
+      readable: false, confidence: 'partial', docType: '', summary: '', facts: [], clauses: [],
+      nextSteps: [], glossary: [], originalText: '', spoken: '',
+      finishReason: last?.finishReason || null, blockReason: last?.blockReason || null,
     })
-
-    if (!r.ok) {
-      const text = await r.text()
-      return res.status(502).json({ error: 'gemini_error', message: text.slice(0, 600) })
-    }
-
-    const data = await r.json()
-    let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    text = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim()
-    const s = text.indexOf('{'), e = text.lastIndexOf('}')
-    const jsonStr = s >= 0 && e > s ? text.slice(s, e + 1) : text
-    
-    try {
-      return res.status(200).json(JSON.parse(jsonStr))
-    } catch {
-      return res.status(200).json({ readable: false, confidence: 'partial', docType: '', summary: '', facts: [], clauses: [], originalText: '', spoken: '' })
-    }
   } catch (err) {
     return res.status(500).json({ error: 'server_error', message: String(err?.message || err) })
   }

@@ -5,6 +5,52 @@ import react from '@vitejs/plugin-react'
 // Uses the 'gemini-flash-latest' alias — always Google's current Flash model, so it won't get retired for new-user keys.
 const MODEL = 'gemini-flash-latest'
 
+// Turn off Gemini's content blocking — real documents (evictions, contracts, medical)
+// contain harsh legal wording we must explain faithfully, not moderate. Keep in sync
+// with api/analyze.js.
+const SAFETY_SETTINGS = [
+  { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+  { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+  { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+  { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+]
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+// One classified call to Gemini — mirrors api/analyze.js so dev matches prod.
+async function callGemini(key, body) {
+  let r
+  try {
+    r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch (e) {
+    return { kind: 'transient', message: String(e?.message || e) }
+  }
+  if (!r.ok) {
+    const text = (await r.text()).slice(0, 600)
+    if (r.status === 429 || r.status === 500 || r.status === 502 || r.status === 503) {
+      return { kind: 'transient', status: r.status, message: text }
+    }
+    return { kind: 'fatal', status: r.status, message: text }
+  }
+  const data = await r.json()
+  const cand = data?.candidates?.[0]
+  const finishReason = cand?.finishReason || null
+  const blockReason = data?.promptFeedback?.blockReason || null
+  let text = cand?.content?.parts?.[0]?.text || ''
+  text = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim()
+  const s = text.indexOf('{'), e = text.lastIndexOf('}')
+  const jsonStr = s >= 0 && e > s ? text.slice(s, e + 1) : text
+  try {
+    return { kind: 'ok', json: JSON.parse(jsonStr) }
+  } catch {
+    return { kind: 'empty', finishReason, blockReason }
+  }
+}
+
 // Canonical EquiDoc prompt. Keep this IN SYNC with the copy in api/analyze.js.
 // The goal is not just to say what the document means, but to tell the reader —
 // in their language, simply — what they can do about it.
@@ -75,49 +121,49 @@ function geminiProxy(env) {
           const imageList = images || (image ? [image] : [])
           if (imageList.length === 0) return send(400, { error: 'no_image', message: 'No photo was received.' })
 
-          const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [
-                    { text: buildPrompt(language) },
-                    ...imageList.map((img) => ({ inlineData: { mimeType: 'image/jpeg', data: img } }))
-                  ]
-                }
-              ],
-              generationConfig: {
-                temperature: 0.2,
-                responseMimeType: 'application/json'
-              }
-            }),
+          const requestBody = {
+            contents: [{
+              role: 'user',
+              parts: [
+                { text: buildPrompt(language) },
+                ...imageList.map((img) => ({ inlineData: { mimeType: 'image/jpeg', data: img } }))
+              ]
+            }],
+            generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+            safetySettings: SAFETY_SETTINGS,
+          }
+
+          // Balanced retry: retry transient overloads cheaply; retry an empty/blocked
+          // result only while time budget remains. Mirrors api/analyze.js.
+          const MAX_ATTEMPTS = 3
+          const SLOW_RETRY_BUDGET_MS = 35000
+          const startedAt = Date.now()
+          let last = null
+
+          for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            const out = await callGemini(key, requestBody)
+            if (out.kind === 'ok') return send(200, out.json)
+            if (out.kind === 'fatal') {
+              let message = out.message
+              if (out.status === 400 && message.includes('API_KEY_INVALID')) message = 'Google AI Studio rejected the API key. Check it in app/.env.local.'
+              return send(502, { error: 'gemini_error', status: out.status, message })
+            }
+            last = out
+            if (attempt === MAX_ATTEMPTS) break
+            if (out.kind === 'empty' && Date.now() - startedAt > SLOW_RETRY_BUDGET_MS) break
+            await sleep(attempt * 1000) // 1s, then 2s
+          }
+
+          if (last?.kind === 'transient') {
+            return send(503, { error: 'overloaded', message: 'The reader is very busy right now. Please try again in a moment.' })
+          }
+          // Exhausted on an empty/blocked result — clean "unreadable" (with diagnostics)
+          // so the app shows the retake screen, never a fabricated summary.
+          return send(200, {
+            readable: false, confidence: 'partial', docType: '', summary: '', facts: [], clauses: [],
+            nextSteps: [], glossary: [], originalText: '', spoken: '',
+            finishReason: last?.finishReason || null, blockReason: last?.blockReason || null,
           })
-
-          if (!r.ok) {
-            const t = await r.text()
-            let message = t.slice(0, 600)
-            if (r.status === 429) message = 'The Gemini API is rate-limited right now. Wait a minute and retry.'
-            else if (r.status === 400 && message.includes('API_KEY_INVALID')) message = 'Google AI Studio rejected the API key. Check it in app/.env.local.'
-            return send(502, { error: 'gemini_error', status: r.status, message })
-          }
-
-          const data = await r.json()
-          let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
-          text = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim()
-          // Models sometimes wrap the JSON in prose — grab the outermost {...}.
-          const s = text.indexOf('{'), e = text.lastIndexOf('}')
-          const jsonStr = s >= 0 && e > s ? text.slice(s, e + 1) : text
-          try {
-            return send(200, JSON.parse(jsonStr))
-          } catch {
-            // Not JSON (model refused or just described the image). Return a
-            // clean "unreadable" so the app shows the retake screen, never hangs.
-            return send(200, { readable: false, confidence: 'partial', docType: '', summary: '', facts: [], clauses: [], originalText: '', spoken: '' })
-          }
         } catch (e) {
           return send(500, { error: 'server_error', message: String(e?.message || e) })
         }
@@ -147,7 +193,8 @@ function geminiProxy(env) {
                 role: 'user',
                 parts: [{ text: `You are a helpful assistant answering questions about a document. The document was previously analyzed and summarized as follows:\n\n${documentContext}\n\nThe user asks: "${message}". Reply directly to their question in ${language}. Keep the answer brief, empathetic, and at a 5th-grade reading level.` }]
               }],
-              generationConfig: { temperature: 0.3 }
+              generationConfig: { temperature: 0.3 },
+              safetySettings: SAFETY_SETTINGS
             }),
           })
           const data = await r.json()
