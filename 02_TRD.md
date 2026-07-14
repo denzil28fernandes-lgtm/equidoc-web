@@ -8,7 +8,7 @@
 
 ```
 ┌─────────────┐      ┌──────────────┐      ┌───────────────┐      ┌─────────────┐
-│  Next.js 16  │─────▶│  API Route   │─────▶│  Trigger.dev  │─────▶│  Gemini 2.5 │
+│  Next.js 16  │─────▶│  API Route   │─────▶│  Trigger.dev  │─────▶│  Gemini 3.5 │
 │  PWA (client)│      │  (upload +    │      │  background   │      │  Flash /    │
 │              │◀─────│   consent)   │◀─────│  job queue    │◀─────│  Flash-Lite │
 └─────────────┘      └──────────────┘      └───────────────┘      └─────────────┘
@@ -36,7 +36,7 @@
 | DB | Supabase Postgres | Managed, generous free tier, built-in row-level security |
 | Object storage | Supabase Storage | Temporary image hosting with signed URLs + TTL deletion |
 | Background jobs | Trigger.dev | Async queue; avoids serverless/browser timeout on long OCR calls |
-| Vision/LLM | Gemini 2.5 Flash (Flash-Lite for cost-sensitive volume) | Multimodal OCR + translation + simplification in one call, 1M-token context |
+| Vision/LLM | Gemini 3.5 Flash (3.1 Flash-Lite for cost-sensitive volume) | Multimodal OCR + translation + simplification in one call, 1M-token context |
 | TTS | Google Cloud TTS (Standard tier default) | Server-side, consistent on cheap phones, single contractible vendor for privacy |
 | TTS fallback | Web Speech API (on-device voices only) | Free fallback where `localService` voices are confirmed available |
 | Hosting | Vercel (or equivalent edge/serverless host) | Native Next.js support, PWA-friendly |
@@ -123,7 +123,7 @@ Triggered internally on upload. Steps: fetch image from Storage → call Gemini 
 3. Image uploaded to Supabase Storage (private bucket, signed upload URL, short TTL).
 4. `documents` row created, status `queued`; Trigger.dev job enqueued.
 5. Job worker:
-   a. Pulls image, sends to Gemini 2.5 Flash with structured-output prompt.
+   a. Pulls image, sends to Gemini 3.5 Flash with structured-output prompt.
    b. Validates JSON against schema (§3). Reject/retry once on malformed output.
    c. If `confidence < threshold` (e.g. 0.5) → status `low_confidence`, still return result with warning flag (per acceptance criteria).
    d. If `extracted_text` empty → status `no_text_found`, no summary generated.

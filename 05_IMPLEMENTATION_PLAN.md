@@ -16,7 +16,7 @@ Evidence-gated, not calendar-gated (PRD §14). **Do not advance a phase on sched
    - Synthetic documents covering hard-to-find clause types (penalty, arbitration, indemnity), written or LLM-assisted
    - Informally recruited beta volunteers (friends, online communities) who opt in to donate a redacted document
 2. Human-author ground truth for each: known-good summary + list of clauses that should be flagged. Ideally get a second person to sanity-check a sample of these to catch builder blind spots.
-3. Build the minimal harness: send each document image to Gemini 2.5 Flash / Flash-Lite with the structured-output prompt (TRD §3 schema), no app around it — a script is enough.
+3. Build the minimal harness: send each document image to Gemini 3.5 Flash / 3.1 Flash-Lite with the structured-output prompt (TRD §3 schema), no app around it — a script is enough.
 4. Score against thresholds (PRD §9):
    - Extraction accuracy (CER) ≤ 5%
    - Faithfulness ≥ 98%

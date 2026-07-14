@@ -147,7 +147,7 @@ create table golden_set_documents (
 -- ========================================
 create table eval_runs (
   id uuid primary key default gen_random_uuid(),
-  model_version text not null,      -- e.g. 'gemini-2.5-flash-lite'
+  model_version text not null,      -- e.g. 'gemini-3-1-flash-lite'
   prompt_version text not null,     -- version tag of the prompt template
   cer numeric(5,4),                 -- character error rate
   faithfulness_score numeric(5,4),

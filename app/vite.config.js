@@ -83,12 +83,14 @@ Respond with ONLY a valid JSON object in this EXACT structure:
   "clauses": [ { "emoji": string, "title": string, "desc": string } ], // 0-4 conditions that affect the reader. "title" = the short warning; "desc" MUST explain the effect in second person and start with "This means you…" (or the natural ${lang} equivalent). in ${lang}
   "nextSteps": [ { "emoji": string, "text": string } ],  // 1-3 concrete, practical, NON-LEGAL actions the reader can take now, in ${lang}. Procedural only, e.g. "Do not sign today — you can take it home and read it first", "Call a free tenant helpline and ask for more time", "Keep this letter — you need the case number to appeal". Never a legal opinion or "you should sue".
   "glossary": [ { "term": string, "plain": string } ],   // 0-4 hard or official words you could not avoid. "term" = the word as it appears (in ${lang}); "plain" = a one-line simple meaning (in ${lang}). Empty array if everything is already simple.
+  "helpResources": [ { "emoji": string, "who": string, "how": string } ], // 0-3 GENERIC free places the reader could turn to for THIS kind of document, in ${lang}. Resource TYPES ONLY — e.g. a free legal aid / advice clinic, a workers'-rights helpline, their country's embassy or consulate labour section, a trusted local community organisation. "who" = the type of place (a few words); "how" = one short line on what to ask them or what to bring. NEVER invent a specific phone number, website, address, or organisation name — types only.
+  "checks": [ { "q": string, "yes": boolean } ],          // EXACTLY 2 simple yes/no comprehension questions in ${lang} that check the reader understood the MOST important points (e.g. a deadline, a cost, an obligation). "q" = the question, phrased so the answer is clearly yes or no. "yes" = true if the correct answer is "yes", false if the correct answer is "no". Concrete, answerable from the summary. Vary the answers — do not make both "yes".
   "originalText": string,             // 1-2 sentence excerpt of the most important part, in its ORIGINAL language
   "spoken": string                    // warm TTS script in ${lang}, spoken like a helpful person. Greet, give the summary, read the key facts plainly, warn clearly about anything worth attention, THEN say what the reader can do next, and end by gently reminding them this is not legal advice. Flow naturally — not a robot, not a bullet list.
 }
 
 CRITICAL RULES:
-- Write ALL reader-facing fields (docType, summary, facts, clauses, nextSteps, glossary, spoken) ONLY in ${lang}.
+- Write ALL reader-facing fields (docType, summary, facts, clauses, nextSteps, glossary, helpResources, checks, spoken) ONLY in ${lang}.
 - Keep everything at a 5th-grade reading level.
 - Be objective and kind. Explain options and who can help, but do NOT give legal advice.`
 }

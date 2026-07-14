@@ -41,6 +41,12 @@ const LANGS = [
   { id: 'am', flag: '🇪🇹', native: 'አማርኛ',    label: 'Amharic',   rtl: false, bcp: 'am-ET' },
   { id: 'es', flag: '🇪🇸', native: 'Español',  label: 'Spanish',   rtl: false, bcp: 'es-ES' },
   { id: 'fr', flag: '🇫🇷', native: 'Français', label: 'French',    rtl: false, bcp: 'fr-FR' },
+  { id: 'pa', flag: '🇮🇳', native: 'ਪੰਜਾਬੀ',    label: 'Punjabi',   rtl: false, bcp: 'pa-IN' },
+  { id: 'si', flag: '🇱🇰', native: 'සිංහල',    label: 'Sinhala',   rtl: false, bcp: 'si-LK' },
+  { id: 'mr', flag: '🇮🇳', native: 'मराठी',    label: 'Marathi',   rtl: false, bcp: 'mr-IN' },
+  { id: 'gu', flag: '🇮🇳', native: 'ગુજરાતી',  label: 'Gujarati',  rtl: false, bcp: 'gu-IN' },
+  { id: 'kn', flag: '🇮🇳', native: 'ಕನ್ನಡ',    label: 'Kannada',   rtl: false, bcp: 'kn-IN' },
+  { id: 'or', flag: '🇮🇳', native: 'ଓଡ଼ିଆ',     label: 'Odia',      rtl: false, bcp: 'or-IN' },
 ]
 
 const PROC_STEPS = [
@@ -59,6 +65,14 @@ const FEEDBACK = [
 const WAVE = Array.from({ length: 30 }, (_, i) => ({
   h: Math.max(4, 9 + Math.sin(i * 0.9) * 7 + Math.sin(i * 2.1) * 4 + Math.sin(i * 0.35) * 5),
 }))
+
+// Find an installed TTS voice for a BCP-47 tag by matching the base language
+// (e.g. 'pa' from 'pa-IN'). Returns null when the device has no voice for it —
+// in which case we must NOT read the text in a mismatched (English) voice.
+const findVoice = (list, bcp) => {
+  const base = (bcp || '').split('-')[0].toLowerCase()
+  return (list || []).find((v) => v.lang && v.lang.toLowerCase().startsWith(base)) || null
+}
 
 // Shown only when there is no real analysis yet (no key / demo mode), so the
 // app still tells a complete story on its own.
@@ -86,6 +100,15 @@ const FALLBACK = {
     { term: 'Recruitment costs', plain: 'Money the agency spent to hire you. This paper says you may have to pay it back if you leave early.' },
     { term: 'Term', plain: 'How long the job lasts — here it is 12 months.' },
   ],
+  helpResources: [
+    { emoji: '⚖️', who: 'A free legal aid or advice clinic', how: 'Bring this contract and ask them to check the early-leaving cost before you sign.' },
+    { emoji: '🏛️', who: 'Your country’s embassy or consulate', how: 'Ask their labour or worker-welfare section if these terms are normal.' },
+    { emoji: '🤝', who: 'A trusted community or worker group', how: 'Ask if anyone has signed a contract like this and what happened.' },
+  ],
+  checks: [
+    { q: 'Would you have to pay money if you leave the job before 12 months?', yes: true },
+    { q: 'Do you have to sign this contract today?', yes: false },
+  ],
   originalText: '"The Employee agrees to a term of twelve (12) months commencing on the date of signature… remuneration of USD 1,200 per calendar month… working hours not exceeding fourteen (14) hours per day, six (6) days weekly…"',
   spoken: 'Hello. This is an employment contract for a live-in domestic worker. You would work for the same household for twelve months, starting when you sign. Your pay is one thousand two hundred dollars each month. You would work fourteen hours a day, six days a week. Please pay attention to a few things. It asks you to sign within twenty four hours, but you do not have to rush. You may owe about two thousand four hundred dollars if you leave early. And it stops you from working for another employer for twelve months after. Here is what you can do now. You do not have to sign today — you can take it home and read it first. Ask a caseworker or someone you trust to read it with you. And before you sign, ask how much you would owe if you had to leave early. Remember, this explains the document, but it is not legal advice.',
 }
@@ -100,6 +123,8 @@ export default function App() {
   const [progress, setProgress] = useState(0)
   const [speed, setSpeed] = useState(1)
   const [showSource, setShowSource] = useState(false)
+  const [voiceList, setVoiceList] = useState([]) // installed TTS voices (loads async)
+  const [checkAnswers, setCheckAnswers] = useState({}) // comprehension quiz: index -> user's yes/no
   const [comprehension, setComprehension] = useState(null)
   const [feedback, setFeedback] = useState(null)
   const [analysis, setAnalysis] = useState(null)
@@ -161,12 +186,15 @@ export default function App() {
     setProgress(0)
   }
 
-  // Pre-load voices on mount so they are ready for the synchronous call
+  // Pre-load voices on mount and keep them in state. getVoices() is often empty on
+  // the first synchronous call (voices load async), so we also listen for
+  // 'voiceschanged' — this is what makes voice-availability reactive in the UI.
   useEffect(() => {
-    if (hasSpeech) {
-      window.speechSynthesis.getVoices()
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices()
-    }
+    if (!hasSpeech) return
+    const load = () => setVoiceList(window.speechSynthesis.getVoices() || [])
+    load()
+    window.speechSynthesis.onvoiceschanged = load
+    return () => { window.speechSynthesis.onvoiceschanged = null }
   }, [hasSpeech])
 
   // iOS requires audio to be primed by a direct user tap. We do this when they tap "Continue".
@@ -242,7 +270,9 @@ export default function App() {
         facts: data?.facts || [],
         clauses: data?.clauses || [],
         nextSteps: data?.nextSteps || [],
-        glossary: data?.glossary || []
+        glossary: data?.glossary || [],
+        helpResources: Array.isArray(data?.helpResources) ? data.helpResources.slice(0, 3) : [],
+        checks: Array.isArray(data?.checks) ? data.checks.filter((c) => c && typeof c.q === 'string').slice(0, 2) : [],
       }
       setAnalysis(clean)
       setScreen('result')
@@ -275,6 +305,11 @@ export default function App() {
 
   // Audio progress is now tracked via the onboundary event in playAudio.
 
+  // Is there a real installed voice for the chosen language on THIS device?
+  // If not, we tell the reader honestly rather than reading it in an English voice.
+  const currentVoice = findVoice(voiceList, ttsLang)
+  const voiceAvailable = hasSpeech && !!currentVoice
+
   const a = analysis || FALLBACK
   const spokenText = a.spoken || a.summary
 
@@ -291,10 +326,15 @@ export default function App() {
     const u = new SpeechSynthesisUtterance(full.slice(start))
     const sp = speedOverride == null ? speed : speedOverride
     u.rate = sp === 1 ? 1 : 0.7
-    const voices = synth.getVoices()
-    const base = ttsLang.split('-')[0].toLowerCase()
-    const match = voices.find((v) => v.lang?.toLowerCase().startsWith(base))
-    if (match) { u.voice = match; u.lang = match.lang } else { u.lang = ttsLang }
+    const match = findVoice(synth.getVoices(), ttsLang)
+    if (!match) {
+      // No installed voice for this language. Reading the text in a mismatched
+      // (usually English) voice produces useless gibberish, so we bail out. The UI
+      // shows an honest "no audio on this device" note and the reader uses the text.
+      speakingRef.current = false; setIsPlaying(false)
+      return
+    }
+    u.voice = match; u.lang = match.lang
 
     lastCharRef.current = start
     u.onboundary = (e) => {
@@ -415,14 +455,57 @@ export default function App() {
     if (isPlaying) speakFrom(lastCharRef.current, next)
   }
 
-  const doUnderstand = () => { cancelSpeech(); setIsPlaying(false); setComprehension('understood'); setScreen('done') }
+  // Tapping "I understand" runs a quick comprehension check when the document has
+  // questions — this is what turns a self-reported tap into *measured* understanding
+  // (the North Star). No questions available → fall back to the plain confirmation.
+  const doUnderstand = () => {
+    cancelSpeech(); setIsPlaying(false)
+    if ((a.checks || []).length > 0) { setCheckAnswers({}); setScreen('check'); return }
+    setComprehension('understood'); setScreen('done')
+  }
   const doUnsure = () => { cancelSpeech(); setIsPlaying(false); setComprehension('unsure'); setScreen('done') }
+
+  // Score the quiz: every answer must match the document to count as "understood".
+  const checks = a.checks || []
+  const allChecksAnswered = checks.length > 0 && checks.every((_, i) => checkAnswers[i] !== undefined)
+  const submitCheck = () => {
+    const passed = checks.every((c, i) => checkAnswers[i] === !!c.yes)
+    setComprehension(passed ? 'understood' : 'unsure')
+    setScreen('done')
+  }
+
   const doReset = () => {
     cancelSpeech(); setIsPlaying(false); setProgress(0); setConsent(false)
     setShowSource(false); setComprehension(null); setFeedback(null)
-    setAnalysis(null); setError(null)
+    setAnalysis(null); setError(null); setCheckAnswers({})
     setPhotos([]); setChatHistory([]) // start the next document clean
     setScreen('capture')
+  }
+
+  // "Bring this to someone you trust" — share the plain summary (the way our users
+  // actually operate: through family/community). Native share sheet → WhatsApp etc.,
+  // with a clipboard fallback where the Web Share API is unavailable.
+  const buildShareText = () => {
+    const lines = []
+    if (a.docType) lines.push(`📄 ${a.docType}`)
+    if (a.summary) lines.push('', a.summary)
+    if ((a.facts || []).length) { lines.push(''); a.facts.forEach((f) => lines.push(`• ${f.label}: ${f.value}`)) }
+    if ((a.clauses || []).length) { lines.push('', '⚠️ Worth attention:'); a.clauses.forEach((c) => lines.push(`• ${c.title}`)) }
+    lines.push('', 'Shared from EquiDoc — this explains the document, it is not legal advice.')
+    return lines.join('\n')
+  }
+  const [shareNote, setShareNote] = useState('')
+  const shareSummary = async () => {
+    const text = buildShareText()
+    try {
+      if (navigator.share) { await navigator.share({ title: a.docType || 'Document summary', text }); return }
+      if (navigator.clipboard) { await navigator.clipboard.writeText(text); setShareNote('Summary copied — paste it to someone you trust'); setTimeout(() => setShareNote(''), 3000); return }
+      setShareNote('Sharing is not supported on this device')
+      setTimeout(() => setShareNote(''), 3000)
+    } catch (e) {
+      // User dismissing the share sheet throws AbortError — that's fine, say nothing.
+      if (e?.name !== 'AbortError') { setShareNote('Could not share right now'); setTimeout(() => setShareNote(''), 3000) }
+    }
   }
 
   const understood = comprehension === 'understood'
@@ -663,6 +746,7 @@ export default function App() {
             <div className="eq-scroll" style={css('position:absolute; top:96px; left:0; right:0; bottom:150px; overflow-y:auto; padding:14px 18px 20px;')}>
               {/* audio player */}
               <div style={css('background:#F2FAF9; border-radius:20px; padding:15px 16px 12px; margin-bottom:16px;')}>
+                {voiceAvailable ? (<>
                 <div style={css('display:flex; align-items:center; gap:13px; margin-bottom:11px;')}>
                   <div role="button" aria-label={isPlaying ? 'Pause audio' : 'Play audio'} tabIndex={0} style={css('width:62px; height:62px; border-radius:50%; background:#0F7C6B; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 6px 20px rgba(15,124,107,0.4);')} onClick={togglePlay} onKeyDown={(e) => e.key === 'Enter' && togglePlay()}>
                     {isPlaying ? (
@@ -685,6 +769,17 @@ export default function App() {
                   <span style={css('font-size:12px; color:#5C726E; font-weight:500;')}>Listening in {selectedLabel}</span>
                   <span style={css('font-size:12px; color:#5C726E; font-weight:500;')}>{timeStr}</span>
                 </div>
+                </>) : (
+                  <div style={css('display:flex; align-items:center; gap:12px;')}>
+                    <div style={css('width:46px; height:46px; border-radius:50%; background:#E5EEEC; display:flex; align-items:center; justify-content:center; flex-shrink:0;')}>
+                      <span style={css('font-size:22px;')}>🔇</span>
+                    </div>
+                    <div style={css('flex:1;')}>
+                      <div style={css('font-size:13.5px; font-weight:800; color:#5C726E;')}>Read-aloud not available in {selectedLabel} on this device</div>
+                      <div style={css('font-size:12px; color:#829692; line-height:1.45; margin-top:3px;')}>This device has no {selectedLabel} voice installed, so we will not read it in the wrong voice. Please read the summary below — it is the same words.</div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* summary body */}
@@ -739,6 +834,29 @@ export default function App() {
                       <div key={i} style={{ background: '#F2FAF9', border: '1px solid #CDE9E3', borderLeft: '4px solid #0F7C6B', borderRadius: '14px', padding: '13px 15px', display: 'flex', alignItems: 'flex-start', gap: '11px', direction: selLang?.rtl ? 'rtl' : 'ltr' }}>
                         <span style={css('font-size:19px; line-height:1.4;')}>{s.emoji || '✅'}</span>
                         <p style={css('font-size:14px; color:#28352F; line-height:1.55; margin:0; font-weight:600;')}>{s.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* who can help you */}
+              {(a.helpResources || []).length > 0 && (
+                <>
+                  <div style={css('display:flex; align-items:center; gap:8px; margin-bottom:4px;')}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.6-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.4-7 10-7 10z" stroke="#7A3FB0" strokeWidth="1.9" strokeLinejoin="round" /></svg>
+                    <span style={css('font-size:15px; font-weight:800; color:#16211F;')}>Who can help you</span>
+                  </div>
+                  <p style={css('font-size:13px; color:#7E9490; line-height:1.5; margin:0 0 12px;')}>Free places many people turn to for a document like this. These are general types of help — not specific offices, and not legal advice.</p>
+
+                  <div style={css('display:flex; flex-direction:column; gap:9px; margin-bottom:18px;')}>
+                    {a.helpResources.map((h, i) => (
+                      <div key={i} style={{ background: '#FAF6FE', border: '1px solid #ECDDF7', borderLeft: '4px solid #8B4FC0', borderRadius: '14px', padding: '13px 15px', display: 'flex', alignItems: 'flex-start', gap: '11px', direction: selLang?.rtl ? 'rtl' : 'ltr' }}>
+                        <span style={css('font-size:19px; line-height:1.4;')}>{h.emoji || '🤝'}</span>
+                        <div>
+                          <div style={css('font-size:14px; font-weight:800; color:#16211F;')}>{h.who}</div>
+                          {h.how ? <div style={css('font-size:13.5px; color:#5C726E; line-height:1.5; margin-top:2px;')}>{h.how}</div> : null}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -839,6 +957,58 @@ export default function App() {
             </div>
           </div>
 
+          {/* ═══ SCREEN 5.5 — COMPREHENSION CHECK ═══ */}
+          <div style={layer('check')}>
+            {/* header */}
+            <div style={css('position:absolute; top:0; left:0; right:0; height:96px; z-index:20; background:#FFFFFF; display:flex; align-items:flex-end; padding:0 18px 12px;')}>
+              <div style={css('display:flex; align-items:center; gap:12px; width:100%;')}>
+                <div role="button" aria-label="Back to summary" tabIndex={0} style={css('width:40px; height:40px; border-radius:50%; background:#F1F5F4; display:flex; align-items:center; justify-content:center; cursor:pointer;')} onClick={() => go('result')} onKeyDown={(e) => e.key === 'Enter' && go('result')}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#16211F" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </div>
+                <div style={css('flex:1; min-width:0;')}>
+                  <div style={css('font-size:11px; font-weight:700; color:#0F7C6B; text-transform:uppercase; letter-spacing:0.6px;')}>Quick check</div>
+                  <div style={css('font-size:17px; font-weight:800; color:#16211F; letter-spacing:-0.3px;')}>Did the main points land?</div>
+                </div>
+              </div>
+            </div>
+
+            {/* body */}
+            <div className="eq-scroll" style={css('position:absolute; top:96px; left:0; right:0; bottom:96px; overflow-y:auto; padding:16px 18px 20px;')}>
+              <p style={css('font-size:13.5px; color:#7E9490; line-height:1.55; margin:0 0 18px;')}>A couple of quick questions — just so you know you understood the important parts. There is no score to worry about.</p>
+
+              <div style={css('display:flex; flex-direction:column; gap:16px;')}>
+                {checks.map((c, i) => (
+                  <div key={i} style={{ background: '#F5F8F7', borderRadius: '16px', padding: '15px 16px', direction: selLang?.rtl ? 'rtl' : 'ltr' }}>
+                    <div style={css('font-size:15px; font-weight:700; color:#16211F; line-height:1.5; margin-bottom:12px;')}>{c.q}</div>
+                    <div style={css('display:flex; gap:10px;')}>
+                      {[{ v: true, label: 'Yes' }, { v: false, label: 'No' }].map((opt) => {
+                        const sel = checkAnswers[i] === opt.v
+                        return (
+                          <div key={opt.label} role="button" tabIndex={0} aria-label={opt.label}
+                            onClick={() => setCheckAnswers((prev) => ({ ...prev, [i]: opt.v }))}
+                            onKeyDown={(e) => e.key === 'Enter' && setCheckAnswers((prev) => ({ ...prev, [i]: opt.v }))}
+                            style={{ flex: 1, height: '48px', borderRadius: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', cursor: 'pointer', background: sel ? TEAL : '#FFFFFF', border: `2px solid ${sel ? TEAL : '#DBE5E3'}`, transition: 'all 0.15s' }}>
+                            <span style={css('font-size:18px;')}>{opt.v ? '👍' : '👎'}</span>
+                            <span style={{ fontSize: '15px', fontWeight: 700, color: sel ? '#fff' : '#5C726E' }}>{opt.label}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* footer */}
+            <div style={css('position:absolute; bottom:0; left:0; right:0; z-index:25; background:#FFFFFF; border-top:1px solid #EDF1F0; padding:11px 18px 30px;')}>
+              <div role="button" tabIndex={0} aria-label="See what you can do next"
+                style={{ height: '50px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: allChecksAnswered ? 'pointer' : 'default', background: allChecksAnswered ? TEAL : '#CFE0DC', transition: 'background 0.2s' }}
+                onClick={() => allChecksAnswered && submitCheck()} onKeyDown={(e) => e.key === 'Enter' && allChecksAnswered && submitCheck()}>
+                <span style={css('font-size:14.5px; font-weight:700; color:#fff;')}>{allChecksAnswered ? 'See what you can do next' : 'Answer both to continue'}</span>
+              </div>
+            </div>
+          </div>
+
           {/* ═══ SCREEN 6 — DONE ═══ */}
           <div style={layer('done')}>
             <div style={css('padding:74px 24px 40px; display:flex; flex-direction:column; align-items:center; height:100%; text-align:center;')}>
@@ -871,10 +1041,16 @@ export default function App() {
 
               <div style={css('flex:1;')} />
 
+              {shareNote ? <div style={css('width:100%; text-align:center; font-size:12.5px; font-weight:600; color:#0F7C6B; margin-bottom:10px;')}>{shareNote}</div> : null}
+
               <div style={css('width:100%; display:flex; flex-direction:column; gap:10px;')}>
-                <div role="button" aria-label="Hear summary again" tabIndex={0} style={css('height:52px; border-radius:16px; background:#0F7C6B; display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer;')} onClick={() => go('result')} onKeyDown={(e) => e.key === 'Enter' && go('result')}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V2L8 6l4 4V7a5 5 0 11-5 5" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  <span style={css('font-size:15px; font-weight:700; color:#fff;')}>Hear the summary again</span>
+                <div role="button" aria-label="Send this summary to someone you trust" tabIndex={0} style={css('height:52px; border-radius:16px; background:#0F7C6B; display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer;')} onClick={shareSummary} onKeyDown={(e) => e.key === 'Enter' && shareSummary()}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8a3 3 0 10-2.8-4M18 8a3 3 0 01-2.8-2M18 8l-9 4m9 8a3 3 0 10-2.8-4M18 20a3 3 0 01-2.8-2M18 20l-9-4M9 12a3 3 0 10-6 0 3 3 0 006 0zm0 0l6-4m-6 4l6 4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  <span style={css('font-size:15px; font-weight:700; color:#fff;')}>Send to someone you trust</span>
+                </div>
+                <div role="button" aria-label="Hear summary again" tabIndex={0} style={css('height:52px; border-radius:16px; border:2px solid #DBE5E3; display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer;')} onClick={() => go('result')} onKeyDown={(e) => e.key === 'Enter' && go('result')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V2L8 6l4 4V7a5 5 0 11-5 5" stroke="#5C726E" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  <span style={css('font-size:15px; font-weight:700; color:#5C726E;')}>See the summary again</span>
                 </div>
                 <div role="button" aria-label="Read a new document" tabIndex={0} style={css('height:52px; border-radius:16px; border:2px solid #DBE5E3; display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer;')} onClick={doReset} onKeyDown={(e) => e.key === 'Enter' && doReset()}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#5C726E" strokeWidth="1.9" /><path d="M7 6l1.6-2.4h6.8L17 6" stroke="#5C726E" strokeWidth="1.9" strokeLinejoin="round" /><circle cx="12" cy="12.5" r="3.1" stroke="#5C726E" strokeWidth="1.9" /></svg>

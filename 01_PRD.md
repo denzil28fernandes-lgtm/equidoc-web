@@ -96,7 +96,7 @@ If a caseworker or advocate does discover and use the tool with a client, that's
 | R1 | Camera capture inside mobile browser, no install | Must | Multi-page later |
 | R2 | Explicit in-language cloud-processing consent before capture | Must | Gate + logged. Does double duty as the "trust-building" step normally handled by a caseworker |
 | R3 | Async OCR/extraction via background job (no browser timeout) | Must | Trigger.dev queue |
-| R4 | Plain-language simplification + translation | Must | Gemini 2.5 Flash |
+| R4 | Plain-language simplification + translation | Must | Gemini 3.5 Flash |
 | R5 | Detect/surface attention-worthy clauses (obligations, deadlines, penalties) | Must | Never "advice" |
 | R6 | Audio playback of summary in target language | Must | TTS engine |
 | R7 | Image deleted immediately post-processing, no archive | Must | Privacy guardrail, verifiable |
@@ -140,7 +140,7 @@ If a caseworker or advocate does discover and use the tool with a client, that's
 **AI does:** OCR/extraction, cleanup, translation, plain-language rewriting, clause flagging.
 **AI must not:** give legal advice, predict outcomes, guess illegible text, invent obligations/dates/amounts.
 
-**Model:** Gemini 2.5 Flash (Flash-Lite for cost) — multimodal OCR + large context in one call.
+**Model:** Gemini 3.5 Flash (3.1 Flash-Lite for cost) — multimodal OCR + large context in one call. In code the model is pinned to the `gemini-flash-latest` alias, which always resolves to Google's current Flash.
 **Approach:** Structured prompting, strict output schema: `extracted_text, summary, attention_clauses[], confidence`. Grounded strictly in extracted text — no outside knowledge.
 **Why not fine-tune yet:** Prompt + schema iterates faster during discovery; revisit only if evals plateau below target.
 
