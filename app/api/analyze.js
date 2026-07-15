@@ -24,6 +24,8 @@ function buildPrompt(lang, today) {
 
 Your job is not only to explain what the document SAYS, but to help the reader understand what it MEANS for them and what they can do about it.
 
+Step 0 — Is this a document? A document is a letter, form, contract, notice, bill, statement, certificate or similar page (photo or PDF) with readable text and official or formal content. If what you were given is instead a random picture — a person or selfie, an animal, food, scenery, an everyday object, a screenshot of an app or chat, a meme, artwork, or a blank/unclear image with no meaningful document text — then it is NOT a document. In that case do NOT invent a summary: respond with ONLY this exact JSON and nothing else — {"isDocument": false, "readable": false}
+
 Step 1 — Read: transcribe the document into "raw_transcription". Do not skip fine print, numbers, names, or dates.
 Step 2 — Understand: work out the reader's obligations, rights, deadlines, and money — anything that affects their time, rights, or money.
 Step 3 — Explain simply, in ${lang}: translate and rewrite everything at a CEFR A2 / 5th-grade level. Short sentences. No jargon. Speak TO the reader as "you".
@@ -37,6 +39,7 @@ How to explain well:
 
 Respond with ONLY a valid JSON object in this EXACT structure:
 {
+  "isDocument": boolean,              // true — this really is a document (see Step 0). Only false for a non-document picture, in the short form above.
   "raw_transcription": string,        // verbatim, for your own reasoning
   "readable": boolean,                // ALWAYS true; do your best even if blurry, dark, or cropped
   "confidence": "clear" | "partial",
@@ -104,9 +107,13 @@ export default async function handler(req, res) {
   const key = process.env.GEMINI_API_KEY
   if (!key) return res.status(500).json({ error: 'no_key', message: 'Missing GEMINI_API_KEY environment variable on Vercel.' })
 
-  const { image, images, language } = req.body
-  const imageList = images || (image ? [image] : [])
-  if (imageList.length === 0) return res.status(400).json({ error: 'no_image', message: 'No photo received.' })
+  const { image, images, files, language } = req.body
+  // New clients send typed `files` ({ data, mime }); older ones send bare base64
+  // JPEG strings via `images`/`image`. Support both; PDFs arrive as application/pdf.
+  const fileParts = Array.isArray(files) && files.length
+    ? files.filter((f) => f && f.data).map((f) => ({ inlineData: { mimeType: f.mime || 'image/jpeg', data: f.data } }))
+    : (images || (image ? [image] : [])).map((img) => ({ inlineData: { mimeType: 'image/jpeg', data: img } }))
+  if (fileParts.length === 0) return res.status(400).json({ error: 'no_image', message: 'No document received.' })
 
   const lang = language || 'English'
   const today = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD, for deadline urgency
@@ -115,7 +122,7 @@ export default async function handler(req, res) {
       role: 'user',
       parts: [
         { text: buildPrompt(lang, today) },
-        ...imageList.map((img) => ({ inlineData: { mimeType: 'image/jpeg', data: img } })),
+        ...fileParts,
       ],
     }],
     generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },

@@ -129,7 +129,8 @@ export default function App() {
   const [feedback, setFeedback] = useState(null)
   const [analysis, setAnalysis] = useState(null)
   const [error, setError] = useState(null)
-  const [photos, setPhotos] = useState([])
+  const [notDoc, setNotDoc] = useState(false) // guardrail: the input wasn't a document at all
+  const [photos, setPhotos] = useState([]) // each item: { data, mime, kind: 'image'|'pdf', name? }
 
   const [chatHistory, setChatHistory] = useState([])
   const [chatInput, setChatInput] = useState('')
@@ -137,6 +138,7 @@ export default function App() {
 
   const fileRef = useRef(null)
   const cameraRef = useRef(null)
+  const pdfRef = useRef(null)
   const speakingRef = useRef(false)
   const utteranceRef = useRef(null)
   const chatEndRef = useRef(null)
@@ -205,14 +207,22 @@ export default function App() {
     window.speechSynthesis.speak(u)
   }
 
-  // ---- native multi-page camera ----
+  // ---- native multi-page camera + PDF upload ----
   const MAX_EDGE = 1600
-  // Resolves to a base64 JPEG string, or null if the file can't be read/decoded
-  // (corrupt file, non-image picked despite the accept filter) so we never hang.
+  // Resolves to a page object { data, mime, kind, name? }, or null if the file
+  // can't be read/decoded (corrupt file, unsupported type) so we never hang.
+  //  • PDFs are passed through untouched — Gemini reads their pages natively.
+  //  • Images are downscaled + re-encoded as JPEG to keep the upload small.
   const processFile = (file) => new Promise((resolve) => {
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '')
     const reader = new FileReader()
     reader.onerror = () => resolve(null)
     reader.onload = (e) => {
+      if (isPdf) {
+        const b64 = String(e.target.result || '').split(',')[1]
+        resolve(b64 ? { data: b64, mime: 'application/pdf', kind: 'pdf', name: file.name || 'Document.pdf' } : null)
+        return
+      }
       const img = new Image()
       img.onerror = () => resolve(null)
       img.onload = () => {
@@ -222,7 +232,7 @@ export default function App() {
           const c = document.createElement('canvas')
           c.width = w; c.height = h
           c.getContext('2d').drawImage(img, 0, 0, w, h)
-          resolve(c.toDataURL('image/jpeg', 0.92).split(',')[1])
+          resolve({ data: c.toDataURL('image/jpeg', 0.92).split(',')[1], mime: 'image/jpeg', kind: 'image' })
         } catch { resolve(null) }
       }
       img.src = e.target.result
@@ -238,15 +248,19 @@ export default function App() {
     e.target.value = '' // reset input
   }
 
-  const analyze = async (imagesB64Array) => {
-    if (!imagesB64Array || !imagesB64Array.length) { setError('Please add at least one page of the document.'); setScreen('retake'); return }
+  const analyze = async (pages) => {
+    if (!pages || !pages.length) { setError('Please add at least one page of the document.'); setNotDoc(false); setScreen('retake'); return }
+    setNotDoc(false)
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 75000) // never hang forever
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images: imagesB64Array, language: selLang?.label || 'English' }),
+        body: JSON.stringify({
+          files: pages.map((p) => ({ data: p.data, mime: p.mime })),
+          language: selLang?.label || 'English',
+        }),
         signal: ctrl.signal,
       })
       // The body may not be JSON (e.g. a Vercel 504 gateway HTML page) — don't crash on parse.
@@ -255,6 +269,11 @@ export default function App() {
       if (!res.ok) {
         setError((data && data.message) || 'Something went wrong reading the document.')
         setScreen('retake'); return
+      }
+      // Guardrail: the model decided this isn't a document at all (a selfie, scenery,
+      // an object…). Say so plainly instead of inventing a summary.
+      if (data && data.isDocument === false) {
+        setError(null); setNotDoc(true); setScreen('retake'); return
       }
       // Unreadable / empty result → offer a retake, never a fabricated summary (PRD §8).
       if (!data || data.readable === false || !data.summary?.trim()) {
@@ -293,6 +312,11 @@ export default function App() {
     setScreen('processing')
     analyze(photos)
   }
+
+  // Button label adapts to what was added (scanned pages vs. an uploaded PDF).
+  const analyzeLabel = photos.some((p) => p.kind === 'pdf')
+    ? (photos.length === 1 ? 'Analyze Document' : `Analyze ${photos.length} Files`)
+    : `Analyze ${photos.length} ${photos.length === 1 ? 'Page' : 'Pages'}`
 
   // Processing: cosmetic stepper only — navigation is driven by analyze().
   useEffect(() => {
@@ -477,7 +501,7 @@ export default function App() {
   const doReset = () => {
     cancelSpeech(); setIsPlaying(false); setProgress(0); setConsent(false)
     setShowSource(false); setComprehension(null); setFeedback(null)
-    setAnalysis(null); setError(null); setCheckAnswers({})
+    setAnalysis(null); setError(null); setNotDoc(false); setCheckAnswers({})
     setPhotos([]); setChatHistory([]) // start the next document clean
     setScreen('capture')
   }
@@ -526,6 +550,7 @@ export default function App() {
     <div className="eq-container">
       <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleFiles} style={{ display: 'none' }} />
       <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={handleFiles} style={{ display: 'none' }} />
+      <input ref={pdfRef} type="file" accept="application/pdf,.pdf" multiple onChange={handleFiles} style={{ display: 'none' }} />
 
       {/* Phone (budget Android) */}
       <div className="eq-phone-bezel">
@@ -629,15 +654,22 @@ export default function App() {
                 <div style={css('height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;')}>
                   <svg width="60" height="60" viewBox="0 0 24 24" fill="none" style={css('margin-bottom:16px; opacity:0.4;')}><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="#0F7C6B" strokeWidth="1.5"/><path d="M14 3v5h5" stroke="#0F7C6B" strokeWidth="1.5"/></svg>
                   <div style={css('font-size:18px; font-weight:700; color:#16211F; margin-bottom:8px;')}>No pages added yet</div>
-                  <div style={css('font-size:14px; color:#6E8480; line-height:1.5; max-width:240px;')}>Tap the camera button below to scan your document. You can add as many pages as you need.</div>
+                  <div style={css('font-size:14px; color:#6E8480; line-height:1.5; max-width:250px;')}>Scan or photograph your document with the camera, or upload a PDF. You can add as many pages as you need.</div>
                 </div>
               ) : (
                 <div style={css('display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-bottom:40px;')}>
-                  {photos.map((b64, i) => (
+                  {photos.map((p, i) => (
                     <div key={i} style={css('position:relative; aspect-ratio:3/4; border-radius:12px; overflow:hidden; border:1px solid #E1EAE8; box-shadow:0 4px 12px rgba(0,0,0,0.05);')}>
-                      <img src={`data:image/jpeg;base64,${b64}`} alt={`Page ${i+1}`} style={css('width:100%; height:100%; object-fit:cover;')} />
-                      <div style={css('position:absolute; top:8px; left:8px; background:rgba(0,0,0,0.6); color:#fff; font-size:12px; font-weight:700; padding:4px 8px; border-radius:100px;')}>Page {i + 1}</div>
-                      <div role="button" onClick={() => setPhotos(p => p.filter((_, idx) => idx !== i))} style={css('position:absolute; top:8px; right:8px; background:rgba(255,0,0,0.8); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;')}>
+                      {p.kind === 'pdf' ? (
+                        <div style={css('width:100%; height:100%; background:#F1F5F4; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:12px; text-align:center;')}>
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="#0F7C6B" strokeWidth="1.6"/><path d="M14 3v5h5" stroke="#0F7C6B" strokeWidth="1.6"/></svg>
+                          <span style={css('font-size:11.5px; font-weight:600; color:#5C726E; line-height:1.35; word-break:break-word;')}>{p.name || 'PDF'}</span>
+                        </div>
+                      ) : (
+                        <img src={`data:${p.mime};base64,${p.data}`} alt={`Page ${i+1}`} style={css('width:100%; height:100%; object-fit:cover;')} />
+                      )}
+                      <div style={css('position:absolute; top:8px; left:8px; background:rgba(0,0,0,0.6); color:#fff; font-size:12px; font-weight:700; padding:4px 8px; border-radius:100px;')}>{p.kind === 'pdf' ? 'PDF' : `Page ${i + 1}`}</div>
+                      <div role="button" onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))} style={css('position:absolute; top:8px; right:8px; background:rgba(255,0,0,0.8); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;')}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>
                       </div>
                     </div>
@@ -665,11 +697,14 @@ export default function App() {
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="#0F7C6B" strokeWidth="2" strokeLinejoin="round"/><circle cx="12" cy="13" r="4" stroke="#0F7C6B" strokeWidth="2"/></svg>
                   <span style={css('font-size:16px; font-weight:700; color:#0F7C6B;')}>Add Page</span>
                 </div>
+                <div role="button" onClick={() => pdfRef.current?.click()} style={css('width:56px; height:56px; border-radius:16px; background:#F1F5F4; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;')} aria-label="Upload a PDF">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="#0F7C6B" strokeWidth="1.7"/><path d="M14 3v5h5" stroke="#0F7C6B" strokeWidth="1.7"/><path d="M9 15h6M9 12h3" stroke="#0F7C6B" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                </div>
               </div>
 
               {photos.length > 0 && (
                 <div role="button" onClick={doAnalyze} style={css('width:100%; height:56px; border-radius:16px; background:#0F7C6B; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:12px; box-shadow:0 4px 14px rgba(15,124,107,0.3);')}>
-                  <span style={css('font-size:16px; font-weight:700; color:#fff;')}>Analyze {photos.length} {photos.length === 1 ? 'Page' : 'Pages'}</span>
+                  <span style={css('font-size:16px; font-weight:700; color:#fff;')}>{analyzeLabel}</span>
                 </div>
               )}
             </div>
@@ -931,11 +966,15 @@ export default function App() {
           <div style={layer('retake')}>
             <div style={css('padding:70px 24px 40px; display:flex; flex-direction:column; align-items:center; height:100%; text-align:center;')}>
               <div style={css('width:88px; height:88px; border-radius:24px; background:#FFF4E9; display:flex; align-items:center; justify-content:center; margin-bottom:18px;')}>
-                <svg width="42" height="42" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#D9822B" strokeWidth="1.9" /><path d="M7 6l1.6-2.4h6.8L17 6" stroke="#D9822B" strokeWidth="1.9" strokeLinejoin="round" /><circle cx="12" cy="12.5" r="3.1" stroke="#D9822B" strokeWidth="1.9" /><path d="M3 3l18 18" stroke="#D9822B" strokeWidth="1.9" strokeLinecap="round" /></svg>
+                {notDoc ? (
+                  <svg width="42" height="42" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#D9822B" strokeWidth="1.9" /><path d="M12 8v5" stroke="#D9822B" strokeWidth="2.1" strokeLinecap="round" /><circle cx="12" cy="16.2" r="1.15" fill="#D9822B" /></svg>
+                ) : (
+                  <svg width="42" height="42" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#D9822B" strokeWidth="1.9" /><path d="M7 6l1.6-2.4h6.8L17 6" stroke="#D9822B" strokeWidth="1.9" strokeLinejoin="round" /><circle cx="12" cy="12.5" r="3.1" stroke="#D9822B" strokeWidth="1.9" /><path d="M3 3l18 18" stroke="#D9822B" strokeWidth="1.9" strokeLinecap="round" /></svg>
+                )}
               </div>
-              <div style={css('font-size:21px; font-weight:800; color:#16211F; letter-spacing:-0.4px;')}>{error ? 'Something went wrong' : 'The photo was hard to read'}</div>
-              <div style={css('font-size:14px; color:#6E8480; margin-top:6px; margin-bottom:24px; line-height:1.5;')}>{error || 'We would rather ask again than guess. Try once more with these tips:'}</div>
-              {!error && (
+              <div style={css('font-size:21px; font-weight:800; color:#16211F; letter-spacing:-0.4px;')}>{error ? 'Something went wrong' : notDoc ? "This doesn't look like a document" : 'The photo was hard to read'}</div>
+              <div style={css('font-size:14px; color:#6E8480; margin-top:6px; margin-bottom:24px; line-height:1.5;')}>{error || (notDoc ? 'EquiDoc reads letters, forms, contracts, notices and bills. Please add a photo or PDF of a document to continue.' : 'We would rather ask again than guess. Try once more with these tips:')}</div>
+              {!error && !notDoc && (
                 <div style={css('display:flex; flex-direction:column; gap:10px; width:100%; margin-bottom:26px;')}>
                   {[
                     { emoji: '💡', t: 'Find bright, even light — no shadows' },
@@ -949,7 +988,7 @@ export default function App() {
                   ))}
                 </div>
               )}
-              <div style={{ flex: error ? 1 : 'unset' }} />
+              <div style={{ flex: (error || notDoc) ? 1 : 'unset' }} />
               <div role="button" aria-label="Take photo again" tabIndex={0} style={css('width:100%; height:54px; border-radius:16px; background:#0F7C6B; display:flex; align-items:center; justify-content:center; gap:9px; cursor:pointer;')} onClick={() => go('capture')} onKeyDown={(e) => e.key === 'Enter' && go('capture')}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#fff" strokeWidth="1.9" /><path d="M7 6l1.6-2.4h6.8L17 6" stroke="#fff" strokeWidth="1.9" strokeLinejoin="round" /><circle cx="12" cy="12.5" r="3.1" stroke="#fff" strokeWidth="1.9" /></svg>
                 <span style={css('font-size:15px; font-weight:700; color:#fff;')}>Take the photo again</span>
